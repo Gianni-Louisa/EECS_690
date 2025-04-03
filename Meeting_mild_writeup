@@ -1,0 +1,17 @@
+P/rjpmtn/Utilization
+•	Processors don’t share memory
+•	Assume same checkpointing and migration costs.
+•	Sim.py
+•	System-c
+•	Discrete event simulation c++
+•	Need: libaray with migration costs, checkpointing, migration, priority
+•	No starvation
+•	Migration cost -> sending job to other processor
+•	Routine checkpointing? Propose both and do that research
+•	Account for fail-stop: have to go back to the previous checkpoint, but could move to another processor
+o	Future work: silent errors. Communication networks.
+•	Duplex communication.
+
+1.	Algorithm
+a.	Priority standard: if there is no higher prio job, stay in global simulator. 
+b.	If there is a lower priority job, then pre-empt that job but also checkpoint it.  That saves it to the memory of the processor and the processor notifies the scheduler. Once the scheduler reschedules that job, then the memory content is moved to the new processor (migration costs).
