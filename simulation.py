@@ -1,7 +1,28 @@
 import simpy
 import random
 import statistics
+"""
+Pi = priority (0-10 highest priority 10)
+T = time    
+Rt = release time
+Ji = job ID
 
+Cc = Cost of checkpointing
+Cm = Cost of migration
+Cr = Cost of recovery
+
+This study is trying to find:
+ - weighted Slowdown and stretch of jobs
+ - weighted Utilization
+
+Fill processors if they are empty. If not, fill with highest priority job. You will find the lowest priority job that is running on a processor to replace. That job will be preempted and moved to the new processor.
+There is a global scheduler that will schedule jobs to machines and when a job is replaced it will be moved to the globoal scheduler until it is scheduled again.
+Essentially, the global scheduler is the job scheduler and is a priority queue and will make all higher priority jobs move to the front, the local machines do not have queues and only hold enough jobs to fill the machine. So if a job is preempted, which will be terminated or checkpointed, it will be moved to the global scheduler until it is scheduled again.
+Each machine will just store enough to storage checkpoint and recovery information. 
+We will either terminate or use the latest checkpoint to recover the job. Taking the loss of the job into account.
+Make sure to include the machine that the job was running on for the previous checkpoint and if its kicked back to the global scheduler, make sure to try to schedule it on the same machine if possible.
+
+"""
 NUM_MACHINES = 2
 CORES_PER_MACHINE = 4
 TOTAL_CPUS = NUM_MACHINES * CORES_PER_MACHINE
