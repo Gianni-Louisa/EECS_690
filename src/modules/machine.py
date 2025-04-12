@@ -3,9 +3,7 @@ from typing import Callable, Type
 import simpy
 
 class Machine:
-    def __init__( self, env : simpy.Environment, id : int, progression_algo : Callable[ [ Type[ "Machine" ] ], None ], checkpoint_algo : Callable[ [ Type[ "Machine" ] ], None ] ) -> None:
-        self.env = env
-        
+    def __init__( self, id : int, progression_algo : Callable[ [ Type[ "Machine" ] ], None ], checkpoint_algo : Callable[ [ Type[ "Machine" ] ], None ] ) -> None:        
         self._id : int = id
         self._curr_job : Job = None
         self._stored_checkpoints : dict[ int : int ] = {}
@@ -13,10 +11,7 @@ class Machine:
         self._checkpoint_algo = checkpoint_algo
 
     def progress( self, progression_amount ):
-        val = self._progression_algo( self, progression_amount )
-
-        if val < progression_amount:
-            raise simpy.Interrupt
+        return self._progression_algo( self, progression_amount )
 
     def is_machine_free( self ): 
         return self._curr_job is None
@@ -37,3 +32,4 @@ class Machine:
         
         else:
             return False
+        

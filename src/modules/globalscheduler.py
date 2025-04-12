@@ -23,15 +23,14 @@ def progress( machine : Machine, progression_amount ):
         
 
 class GlobalScheduler:
-    def __init__( self, env, num_of_machines, new_job_func, reschedule_func, curr_timestamp_func ):
-        self.env = env
+    def __init__( self, num_of_machines, new_job_func, reschedule_func, curr_timestamp_func ):
         
-        self.machines = [ Machine(env, i, progress, null) for i in range( num_of_machines ) ]
+        self.machines = [ Machine(i, progress, null) for i in range( num_of_machines ) ]
         
         self.task_queue = []
         self.finished_tasks = []
 
-        self._current_timestamp = env.now
+        self._current_timestamp = 0
         self._current_timestamp_func = curr_timestamp_func
         self._new_job_func = new_job_func
         self._reschedule_func = reschedule_func
@@ -61,6 +60,36 @@ def reschedule_func( scheduler : GlobalScheduler ):
             machine.set_curr_job( scheduler.task_queue.pop() )
 
 def current_timestamp_func( scheduler : GlobalScheduler ):
-    pass
+    stored_rets = [ [ i, 1 ] for i in range( len( scheduler.machines ) ) ]
 
-env = simpy.Environment()
+    while any( [ i[ 1 ] != 0 for i in stored_rets ] ):
+        for progress_map in stored_rets:
+            if progress_map[ 1 ] == 0:
+                continue
+
+            progress_map[ 1 ] -= scheduler.machines[ progress_map[ 0 ] ].progress( progress_map[ 1 ] )
+
+
+        stored_rets.sort( key=lambda x : x[ 1 ] )
+
+        for progress_map in stored_rets:
+            if scheduler.machines[ progress_map[ 0 ] ].get_curr_job() is None:
+                continue
+            
+            if scheduler.machines[ progress_map[ 0 ] ].get_curr_job().is_job_complete():
+                scheduler.finished_tasks.append( scheduler.machines[ progress_map[ 0 ] ].get_curr_job() )
+                scheduler.machines[ progress_map[ 0 ] ].set_curr_job( None )
+
+                if len( scheduler.task_queue ) > 0:
+                    scheduler.machines[ progress_map[ 0 ] ].set_curr_job( scheduler.task_queue.pop( 0 ) )
+                    
+
+temp_jobs = { 0 : [
+    Job(0, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
+    Job(0, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
+    Job(0, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
+    Job(0, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
+] }
+
+scheduler = GlobalScheduler( 2, new_job_func, reschedule_func, current_timestamp_func )
+scheduler.run_schedule( temp_jobs )

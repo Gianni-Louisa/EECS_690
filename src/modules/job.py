@@ -31,7 +31,7 @@ class Job:
             self._completion_time += inc
             return inc
         else:
-            loc = self._error_loc_func
+            loc = self._error_loc_func( inc )
             self._completion_time += loc
             return loc
 
