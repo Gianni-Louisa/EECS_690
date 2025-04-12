@@ -5,16 +5,32 @@ class Job:
                     release_time : int, error_func : Callable[ [ Type[ "Job" ] ], bool ],
                     error_loc_func : Callable[ [ Type[ "Job" ] ], bool ], 
                     comparison_func : Callable[ [ Type[ "Job" ], Type[ "Job" ] ], int ] ):
+        # The following are meta in formation about jobs
         self._job_id : int = job_id
         self._job_priority : int = job_priority
+
+        # The following are functions that define how jobs operate
+        self._comparison_func = comparison_func
+        self._error_func = error_func
+        self._error_loc_func = error_loc_func
+        
+        # The following are information about the job
         self._runtime : int = runtime
         self._release_time : int = release_time
-        self._completion_time : int = -1
+        self._first_schedule_time = -1
+        self._active_running_time : int = 0
+        self._waiting_time : int = 0
         self._in_error = False
-        self._error_func = error_func
         self._last_run_machine = -1
-        self._comparison_func = comparison_func
-        self._error_loc_func = error_loc_func
+
+    def get_first_schedule_time( self ):
+        return self._first_schedule_time
+    
+    def get_release_time( self ):
+        return self._release_time
+
+    def set_first_schedule_time( self, time ):
+        self._first_schedule_time = time
 
     def get_id( self ):
         return self._job_id
@@ -28,21 +44,21 @@ class Job:
         if not self._in_error:
             inc = min( self._runtime, inc )
             self._runtime -= inc
-            self._completion_time += inc
+            self._active_running_time += inc
             return inc
         else:
             loc = self._error_loc_func( inc )
-            self._completion_time += loc
+            self._active_running_time += loc
             return loc
+        
+    def add_waiting_time( self, waiting_time ):
+        self._waiting_time += waiting_time
 
     def is_job_complete( self ):
         return self._runtime == 0
     
-    def set_job_completion_time( self, completion_time ):
-        self._completion_time = completion_time
-    
-    def get_job_completion_time( self ):
-        return self._completion_time
+    def get_job_active_running_time( self ):
+        return self._active_running_time
     
     def revert_to_checkpoint( self, restart_point : int ):
         self._runtime = restart_point

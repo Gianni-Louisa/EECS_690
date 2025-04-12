@@ -37,6 +37,11 @@ class GlobalScheduler:
 
 
     def run_schedule( self, list_of_jobs ):
+        self.task_queue = []
+        self.finished_tasks = []
+
+        self._current_timestamp = 0
+        
         while True:
             if self._current_timestamp in list_of_jobs.keys():
                 for job in list_of_jobs[ self._current_timestamp ]:
@@ -57,7 +62,12 @@ def new_job_func( scheduler : GlobalScheduler, job ):
 def reschedule_func( scheduler : GlobalScheduler ):
     for machine in scheduler.machines:
         if machine.is_machine_free() and len( scheduler.task_queue ) > 0:
-            machine.set_curr_job( scheduler.task_queue.pop() )
+            curr_job = scheduler.task_queue.pop()
+            if curr_job.get_first_schedule_time() == -1:
+                curr_job.set_first_schedule_time( scheduler._current_timestamp )
+
+            curr_job.set_last_run_machine( machine.get_id() )
+            machine.set_curr_job( curr_job )
 
 def current_timestamp_func( scheduler : GlobalScheduler ):
     stored_rets = [ [ i, 1 ] for i in range( len( scheduler.machines ) ) ]
@@ -75,20 +85,27 @@ def current_timestamp_func( scheduler : GlobalScheduler ):
         for progress_map in stored_rets:
             if scheduler.machines[ progress_map[ 0 ] ].get_curr_job() is None:
                 continue
-            
+
             if scheduler.machines[ progress_map[ 0 ] ].get_curr_job().is_job_complete():
-                scheduler.finished_tasks.append( scheduler.machines[ progress_map[ 0 ] ].get_curr_job() )
+                curr_job = scheduler.machines[ progress_map[ 0 ] ].get_curr_job()
+                curr_job.add_waiting_time( scheduler._current_timestamp + 1 - progress_map[ 1 ] - curr_job.get_release_time() - curr_job.get_job_active_running_time() )
+                scheduler.finished_tasks.append( curr_job )
                 scheduler.machines[ progress_map[ 0 ] ].set_curr_job( None )
 
                 if len( scheduler.task_queue ) > 0:
-                    scheduler.machines[ progress_map[ 0 ] ].set_curr_job( scheduler.task_queue.pop( 0 ) )
+                    curr_job = scheduler.task_queue.pop()
+                    curr_job.set_last_run_machine( scheduler.machines[ progress_map[ 0 ] ].get_id() )
+                    if curr_job.get_first_schedule_time():
+                        curr_job.set_first_schedule_time( scheduler._current_timestamp + 1 - progress_map[ 1 ] )
+
+                    scheduler.machines[ progress_map[ 0 ] ].set_curr_job( curr_job )
                     
 
 temp_jobs = { 0 : [
-    Job(0, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
-    Job(0, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
-    Job(0, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
-    Job(0, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
+    Job(0, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : 0.5, lambda x, y : True),
+    Job(1, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : 0.5, lambda x, y : True),
+    Job(2, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : 0.5, lambda x, y : True),
+    Job(3, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : 0.5, lambda x, y : True),
 ] }
 
 scheduler = GlobalScheduler( 2, new_job_func, reschedule_func, current_timestamp_func )
