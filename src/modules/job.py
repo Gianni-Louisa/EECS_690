@@ -16,6 +16,7 @@ class Job:
         
         # The following are information about the job
         self._runtime : int = runtime
+        self._orig_runtime : int = runtime
         self._release_time : int = release_time
         self._first_schedule_time = -1
         self._active_running_time : int = 0
@@ -37,6 +38,9 @@ class Job:
     
     def get_runtime( self ):
         return self._runtime
+    
+    def restart_job( self ):
+        self._runtime = self._orig_runtime
     
     def progress( self, inc = 1 ) -> float:
         self._in_error = self._error_func( self )
@@ -63,6 +67,9 @@ class Job:
     def revert_to_checkpoint( self, restart_point : int ):
         self._runtime = restart_point
         self._in_error = False
+
+    def is_in_error( self ):
+        return self._in_error
 
     def set_last_run_machine( self, machine_id : int ):
         self._last_run_machine = machine_id

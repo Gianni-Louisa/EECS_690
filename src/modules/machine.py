@@ -1,6 +1,5 @@
-from job import Job
+from modules.job import Job
 from typing import Callable, Type
-import simpy
 
 class Machine:
     def __init__( self, id : int, progression_algo : Callable[ [ Type[ "Machine" ] ], None ], checkpoint_algo : Callable[ [ Type[ "Machine" ] ], None ] ) -> None:        
@@ -11,6 +10,13 @@ class Machine:
         self._checkpoint_algo = checkpoint_algo
         self._active_time = 0
         self._waiting_time = 0
+        self._lock_time = True
+
+    def set_lock( self, state ):
+        self._lock = state
+
+    def get_lock( self ):
+        return self._lock
 
     def get_id( self ):
         return self._id
