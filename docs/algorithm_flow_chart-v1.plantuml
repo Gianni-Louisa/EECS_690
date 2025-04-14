@@ -1,0 +1,41 @@
+@startuml
+
+start
+
+if (A processor is empty) then (yes)
+
+: Schedule on that processor;
+
+elseif (Is there a processor such that the 
+priority of the running job 
+is lower than the current job?) then (no)
+
+: Wait for a processor to finish their current job
+and schedule the job on it;
+
+else (yes)
+
+: Choose the processor which has 
+the lowest priority job running;
+
+if (Cost of killing is higher than the cost
+of using a previous checkpoint) then (yes)
+
+: Send the job currently running back to 
+the global scheduler with a note to use
+a previous checkpoint;
+
+else (no) 
+
+: Kill the job running and send it back to
+the global scheduler;
+
+endif
+
+: Schedule new job onto the now open processor; 
+
+endif
+
+stop
+
+@enduml
