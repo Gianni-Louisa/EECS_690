@@ -1,0 +1,43 @@
+#+title: Math Bits
+#+author: 690 Team
+#+options: toc:nil num:nil
+#+LaTeX_HEADER: \usepackage{pdfrender, amsmath, amsthm, amssymb, calrsfs, wasysym, verbatim, bbm, color, graphics, geometry, fancyhdr, upgreek, mathrsfs, physics}
+#+LaTeX_HEADER: \usepackage[parfill]{parskip}
+#+LaTeX_HEADER: \usepackage[inline]{enumitem}
+#+LaTeX_HEADER: \geometry{tmargin=1in, bmargin=.75in, lmargin= .9in, rmargin = .9in}
+#+LaTeX_HEADER: \pagestyle{fancy}
+#+LaTeX_HEADER: \fancyhf{}
+#+LaTeX_HEADER: \fancyhead[L]{\rightmark}
+#+LaTeX_HEADER: \rhead{\thepage}
+#+LaTeX_HEADER: \graphicspath{ {./} }
+
+* Costs For Determining Preemption
+
+Our algorithm involves two different costs which are used to evaluate whether or not a job $j_{i}$ is killed on preemption---cost of killing ($C_{k}$) and cost of using a checkpoint with a potential migration to a new processor ($C_{p}$). 
+
+Even if we kill a process, it will eventualy need to be re-run. Therefore the cost of killing involves a factor of how much time a job has already been running as whatever work a processor has already done on that job will have to be done again. Because the assumption is that there is no overhead associated with killing, we can say that $C_{k}$ is simply
+
+\begin{gather*}
+C_{k} = t_{i} \\
+\end{gather*}
+
+where $t_{i}$ is the amount of time job $j_{i}$ has been worked on.
+
+We now consider the cost of using a previous checkpoint. Assume we checkpoint at interval $l$. If we use a previous checkpoint, then we only have to re-run the job from a previous checkpoint as opposed to the whole job. However we also have to consider a migration cost. In the event a job switches to a new processor, an amount of overhead is associated with writing the memory of the checkpoint to the new processor. If we assume that a processor has an equal likelihood of being scheduled onto any processor, then the probability of incurring a migration cost is $(m - 1)/m$ where $m$ is the number of processors. Therefore our cost $C_{p}$ is 
+
+\begin{gather*}
+C_{p} = \left( t_{i} - t_{p} \right) + \frac{o_{m} \left( m - 1 \right)}{m}
+\end{gather*}
+
+where $t_{p}$ is the amount of time job $j_i$ has been worked on at the most recent checkpoint and $o_{m}$ is the overhead associated with migration. This value is constant. We know that $t_{i} - t_{p}$ must be bound by $l$ and therefore we can say that
+
+\begin{gather*}
+C_{p} < l + \frac{o_{m} \left( m - 1 \right)}{m}. \\
+\end{gather*} 
+
+For later analysis it is important to note that the mean and standard deviations for amount of migrations with $n_{p}$ preemptions using checkpoints are
+
+\begin{align*}
+\mu_{p} &= n_{p} \frac{m - 1}{m} \\
+\sigma_{p} &= \frac{\sqrt{n_{p} \left( m - 1 \right)}}{m}. \\
+\end{align*}
