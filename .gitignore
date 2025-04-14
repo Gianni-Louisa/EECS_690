@@ -1,1 +1,9 @@
 env
+__pycache__/
+
+# Emacs undo information + recovery
+*~
+
+# LaTeX Files to Exclude
+*.log
+*.aux
