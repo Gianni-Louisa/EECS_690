@@ -143,12 +143,27 @@ def reschedule_func( scheduler : GlobalScheduler ):
                 scheduler.machines[ machine_to_replace ].get_curr_job().restart_job()
 
             else:
-                success = scheduler.machines[ new_job.get_last_run_machine() ].migrate_checkpoint( scheduler.machines[ machine_to_replace ], new_job )
+                if new_job.get_last_run_machine() == scheduler.machines[ machine_to_replace ].get_id():
+                    scheduler.machines[ machine_to_replace ].set_curr_job( new_job )
+                    
+                    try:
+                        new_job.revert_to_checkpoint(scheduler.machines[ machine_to_replace ]._stored_checkpoints[new_job.get_id()])
 
-                if success:
-                    scheduler.machines[ new_job.get_last_run_machine() ].add_lock_time( MIGRATION_OVERHEAD )
+                    except KeyError:
+                        pass
 
-                scheduler.machines[ machine_to_replace ].set_curr_job( scheduler.task_queue.pop( 0 ) )
+
+                else:
+                    success = scheduler.machines[ new_job.get_last_run_machine() ].migrate_checkpoint( scheduler.machines[ machine_to_replace ], new_job )
+
+                    if success:
+                        scheduler.machines[ new_job.get_last_run_machine() ].add_lock_time( MIGRATION_OVERHEAD )
+                        new_job.revert_to_checkpoint(scheduler.machines[ machine_to_replace ]._stored_checkpoints[new_job.get_id()])
+
+                    scheduler.machines[ machine_to_replace ].set_curr_job( new_job )
+
+                new_job.set_last_run_machine( scheduler.machines[ machine_to_replace ].get_id() )
+
 
         else:
             break

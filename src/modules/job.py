@@ -70,6 +70,8 @@ class Job:
         return self._active_running_time
     
     def revert_to_checkpoint( self, restart_point : int ):
+        if restart_point < 0:
+            restart_point == 0 
         self._runtime = restart_point
         self._in_error = False
 
