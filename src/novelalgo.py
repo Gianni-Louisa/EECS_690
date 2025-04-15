@@ -14,10 +14,10 @@ time_to_checkpoint = ( 2 * MEW * CHECKPOINTING_OVERHEAD ) ** (0.5)
 
 def job_error_func( job : Job ):
     ret = random.uniform( 0, 1 )
-    p = 1 - ( math.e ) ** ( -LAMBDA * job.get_last_checkpoint_time() )
+    p = 1 - ( math.e ) ** ( -LAMBDA * ( time_to_checkpoint - job.get_last_checkpoint_time() ) )
 
-    if p < ret:
-        return random.choice( [ True, False ] )
+    if p > ret:
+        #return random.choice( [ True, False ] )
         return True
 
     else:
@@ -61,16 +61,18 @@ temp_jobs = { 0 : [
 ] }
 
 def machine_progression_func( machine : Machine, current_timestamp, progression_amount ):
+    global time_to_checkpoint
     if machine.is_machine_free():
         return ( False, progression_amount )
     
     else:
         curr_job = machine.get_curr_job()
 
-        if( curr_job.get_last_checkpoint_time() >= time_to_checkpoint ):
-            curr_job.set_last_checkpoint_time( current_timestamp )
+        if( current_timestamp >= time_to_checkpoint ):
+            curr_job.set_last_checkpoint_time( time_to_checkpoint )
             machine.add_lock_time( CHECKPOINTING_OVERHEAD )
             machine.trigger_checkpoint()
+            time_to_checkpoint += ( 2 * MEW * CHECKPOINTING_OVERHEAD ) ** (0.5)
 
         if( progression_amount > machine._lock_time ):
             ret = curr_job.progress( progression_amount - machine._lock_time )
@@ -132,38 +134,26 @@ def reschedule_func( scheduler : GlobalScheduler ):
             scheduler.task_queue.append( curr_job )
 
             new_job = scheduler.task_queue.pop( 0 )
+            scheduler.machines[ machine_to_replace ].set_curr_job( new_job )
 
             if new_job.get_first_schedule_time == -1:
                 new_job.set_first_schedule_time( scheduler._current_timestamp )
 
-            kill_cost = curr_job.get_orig_runtime() - curr_job.get_runtime()
-            checkpoint_cost = kill_cost - curr_job.get_last_checkpoint_time() + ( MIGRATION_OVERHEAD * ( len( scheduler.machines ) - 1 ) / len( scheduler.machines ) )
+            kill_cost = new_job.get_orig_runtime() - new_job.get_runtime()
+            checkpoint_cost = kill_cost - new_job.get_last_checkpoint_time() + ( MIGRATION_OVERHEAD * ( len( scheduler.machines ) - 1 ) / len( scheduler.machines ) )
 
             if( kill_cost <= checkpoint_cost ):
-                scheduler.machines[ machine_to_replace ].get_curr_job().restart_job()
+                new_job.restart_job()
+                new_job.set_last_checkpoint_time( scheduler._current_timestamp )
 
             else:
-                if new_job.get_last_run_machine() == scheduler.machines[ machine_to_replace ].get_id():
-                    scheduler.machines[ machine_to_replace ].set_curr_job( new_job )
-                    
-                    try:
-                        new_job.revert_to_checkpoint(scheduler.machines[ machine_to_replace ]._stored_checkpoints[new_job.get_id()])
+                success = scheduler.machines[ new_job.get_last_run_machine() ].migrate_checkpoint( scheduler.machines[ machine_to_replace ], new_job )
 
-                    except KeyError:
-                        pass
+                if success and new_job.get_last_run_machine() != scheduler.machines[ machine_to_replace ].get_id():
+                    scheduler.machines[ new_job.get_last_run_machine() ].add_lock_time( MIGRATION_OVERHEAD )
+                    new_job.revert_to_checkpoint(scheduler.machines[ machine_to_replace ]._stored_checkpoints[new_job.get_id()])
 
-
-                else:
-                    success = scheduler.machines[ new_job.get_last_run_machine() ].migrate_checkpoint( scheduler.machines[ machine_to_replace ], new_job )
-
-                    if success:
-                        scheduler.machines[ new_job.get_last_run_machine() ].add_lock_time( MIGRATION_OVERHEAD )
-                        new_job.revert_to_checkpoint(scheduler.machines[ machine_to_replace ]._stored_checkpoints[new_job.get_id()])
-
-                    scheduler.machines[ machine_to_replace ].set_curr_job( new_job )
-
-                new_job.set_last_run_machine( scheduler.machines[ machine_to_replace ].get_id() )
-
+            new_job.set_last_run_machine( scheduler.machines[ machine_to_replace ].get_id() )
 
         else:
             break
@@ -243,6 +233,6 @@ def generate_random_jobs(num_jobs, max_priority, max_runtime, max_release_time):
     
     return random_jobs
 
-jobs = generate_random_jobs(num_jobs=5, max_priority=5, max_runtime=5, max_release_time=1)
+jobs = generate_random_jobs(num_jobs=10, max_priority=5, max_runtime=5, max_release_time=1)
 
 scheduler.run_schedule( jobs )
