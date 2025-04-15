@@ -4,14 +4,14 @@ from modules.machine import Machine
 import random
 
 temp_jobs = { 0 : [
-    Job(0, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
-    Job(1, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
-    Job(2, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
-    #Job(3, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
-    #Job(0, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
-    #Job(1, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
-    #Job(2, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
-    #Job(3, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x : random.uniform( 0, x ), lambda x, y : True),
+    Job(0, 1, 2, 0, lambda x : random.choice( [True, False] ), lambda x, y : random.uniform( 0, y ), lambda x, y : 0),
+    Job(1, 2, 2, 0, lambda x : random.choice( [True, False] ), lambda x, y : random.uniform( 0, y ), lambda x, y : 0),
+    Job(2, 3, 2, 0, lambda x : random.choice( [True, False] ), lambda x, y : random.uniform( 0, y ), lambda x, y : 0),
+    Job(3, 4, 2, 0, lambda x : random.choice( [True, False] ), lambda x, y : random.uniform( 0, y ), lambda x, y : 0),
+    Job(4, 5, 2, 0, lambda x : random.choice( [True, False] ), lambda x, y : random.uniform( 0, y ), lambda x, y : 0),
+    Job(5, 6, 2, 0, lambda x : random.choice( [True, False] ), lambda x, y : random.uniform( 0, y ), lambda x, y : 0),
+    Job(6, 7, 2, 0, lambda x : random.choice( [True, False] ), lambda x, y : random.uniform( 0, y ), lambda x, y : 0),
+    Job(7, 8, 2, 0, lambda x : random.choice( [True, False] ), lambda x, y : random.uniform( 0, y ), lambda x, y : 0),
 ] }
 
 def machine_progression_func( machine : Machine, progression_amount ):
@@ -43,10 +43,11 @@ def curr_timestamp_func( scheduler : GlobalScheduler ):
             curr_machine = scheduler.machines[ progress[ 0 ] ]
             
             if progress[ 1 ] == 0 or curr_machine.get_curr_job() is None:
+                curr_machine.add_waiting_time( progress[ 1 ] )
                 progress[ 1 ] = 0
                 continue
 
-            ret = curr_machine.progress( progress[ 1 ] )
+            ret = curr_machine.progress( scheduler._current_timestamp, progress[ 1 ] )
             curr_job = curr_machine.get_curr_job()
             
             if curr_job.is_job_complete():

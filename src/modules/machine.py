@@ -6,32 +6,39 @@ class Machine:
         self._id : int = id
         self._curr_job : Job = None
         self._stored_checkpoints : dict[ int : int ] = {}
+
         self._progression_algo = progression_algo
         self._checkpoint_algo = checkpoint_algo
+        
         self._active_time = 0
         self._waiting_time = 0
-        self._lock_time = True
+        self._lock_time = 0
 
-    def set_lock( self, state ):
-        self._lock = state
+    def add_lock_time( self, lock_time ):
+        self._lock_time += lock_time
 
-    def get_lock( self ):
+    def get_lock_time( self ):
         return self._lock
 
     def get_id( self ):
         return self._id
 
-    def progress( self, progression_amount ):
-        active_time = self._progression_algo( self, progression_amount )
-        self._active_time += active_time
+    def progress( self, current_timestamp, progression_amount ):
+        is_active, progression_time = self._progression_algo( self, current_timestamp, progression_amount )
 
-        return active_time
+        if is_active:
+            self._active_time += progression_time
+
+        else:
+            self._waiting_time += progression_time
+
+        return progression_time
     
     def add_waiting_time( self, waiting_time ):
         self._waiting_time += waiting_time
 
     def is_machine_free( self ): 
-        return self._curr_job is None
+        return self._curr_job is None and self._lock_time == 0
 
     def set_curr_job( self, new_job : Job ) -> None:
         self._curr_job = new_job

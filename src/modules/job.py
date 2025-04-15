@@ -19,6 +19,7 @@ class Job:
         self._orig_runtime : int = runtime
         self._release_time : int = release_time
         self._first_schedule_time = -1
+        self._last_checkpoint_time : int = -1
         self._active_running_time : int = 0
         self._waiting_time : int = 0
         self._in_error = False
@@ -32,6 +33,7 @@ class Job:
 
     def set_first_schedule_time( self, time ):
         self._first_schedule_time = time
+        self._last_checkpoint_time = time
 
     def get_id( self ):
         return self._job_id
@@ -41,6 +43,9 @@ class Job:
     
     def restart_job( self ):
         self._runtime = self._orig_runtime
+
+    def get_orig_runtime( self ):
+        return self._orig_runtime
     
     def progress( self, inc = 1 ) -> float:
         self._in_error = self._error_func( self )
@@ -51,7 +56,7 @@ class Job:
             self._active_running_time += inc
             return inc
         else:
-            loc = self._error_loc_func( inc )
+            loc = self._error_loc_func( self, inc )
             self._active_running_time += loc
             return loc
         
@@ -77,11 +82,17 @@ class Job:
     def get_last_run_machine( self ):
         return self._last_run_machine
     
+    def set_last_checkpoint_time( self, time ):
+        self._last_checkpoint_time = time
+
+    def get_last_checkpoint_time( self ):
+        return self._last_checkpoint_time
+    
     def __eq__( self, other ):
-        return self._comparison_func( other ) == 0
+        return self._comparison_func( self, other ) == 0
 
     def __lt__( self, other ):
-        return self._comparison_func( other ) < 0
+        return self._comparison_func( self, other ) < 0
     
     def __gt__( self, other ):
         return not ( self < other ) and not ( self == other )
