@@ -140,7 +140,7 @@ def reschedule_func( scheduler : GlobalScheduler ):
             checkpoint_cost = kill_cost - curr_job.get_last_checkpoint_time() + ( MIGRATION_OVERHEAD * ( len( scheduler.machines ) - 1 ) / len( scheduler.machines ) )
 
             if( kill_cost <= checkpoint_cost ):
-                scheduler.machines[ machine_to_replace ].restart_job()
+                scheduler.machines[ machine_to_replace ].get_curr_job().restart_job()
 
             else:
                 success = scheduler.machines[ new_job.get_last_run_machine() ].migrate_checkpoint( scheduler.machines[ machine_to_replace ], new_job )
