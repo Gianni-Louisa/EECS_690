@@ -12,12 +12,11 @@ RECOVERY_OVERHEAD = 0.1
 
 time_to_checkpoint = ( 2 * MEW * CHECKPOINTING_OVERHEAD ) ** (0.5)
 
-def job_error_func( job : Job ):
+def job_error_func( job : Job, current_timestamp ):
     ret = random.uniform( 0, 1 )
-    p = 1 - ( math.e ) ** ( -LAMBDA * ( time_to_checkpoint - job.get_last_checkpoint_time() ) )
+    p = 1 - ( math.e ) ** ( -LAMBDA * ( current_timestamp - job.get_last_checkpoint_time() ) )
 
     if p > ret:
-        #return random.choice( [ True, False ] )
         return True
 
     else:
@@ -46,20 +45,7 @@ def job_comparison_func( job1 : Job, job2 : Job ):
     
     else:
         return -1
-
-temp_jobs = { 0 : [
-    Job(0, 1, 1, 0, job_error_func, lambda x, y : y if y < 0.000001 else random.uniform( 0, y ), job_comparison_func),
-    Job(1, 2, 2, 0, job_error_func, lambda x, y : y if y < 0.000001 else random.uniform( 0, y ), job_comparison_func),
-    Job(2, 3, 3, 0, job_error_func, lambda x, y : y if y < 0.000001 else random.uniform( 0, y ), job_comparison_func),
-    Job(3, 4, 2, 0, job_error_func, lambda x, y : y if y < 0.000001 else random.uniform( 0, y ), job_comparison_func),
-    Job(4, 5, 2, 0, job_error_func, lambda x, y : y if y < 0.000001 else random.uniform( 0, y ), job_comparison_func),
-    Job(5, 6, 2, 0, job_error_func, lambda x, y : y if y < 0.000001 else random.uniform( 0, y ), job_comparison_func),
-    Job(6, 7, 2, 0, job_error_func, lambda x, y : y if y < 0.000001 else random.uniform( 0, y ), job_comparison_func),
-],
-1 : [
-    Job(7, 8, 2, 5, job_error_func, lambda x, y : y if y < 0.000001 else random.uniform( 0, y ), job_comparison_func),
-] }
-
+    
 def machine_progression_func( machine : Machine, current_timestamp, progression_amount ):
     global time_to_checkpoint
     if machine.is_machine_free():
@@ -75,7 +61,7 @@ def machine_progression_func( machine : Machine, current_timestamp, progression_
             time_to_checkpoint += ( 2 * MEW * CHECKPOINTING_OVERHEAD ) ** (0.5)
 
         if( progression_amount > machine._lock_time ):
-            ret = curr_job.progress( progression_amount - machine._lock_time )
+            ret = curr_job.progress( current_timestamp, progression_amount - machine._lock_time )
             machine._lock_time = 0
             return ( True, ret )
 
@@ -207,7 +193,7 @@ def generate_random_jobs(num_jobs, max_priority, max_runtime, max_release_time):
         
         job = Job(job_id, priority, runtime, release_time, # job object
                  job_error_func, # error function
-                 lambda x, y: y if y < 0.000001 else random.uniform(0, y), # error location function
+                 lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), # error location function
                  job_comparison_func) # job comparison function
         jobs_at_time_0.append(job) # append job to jobs at time 0
     
@@ -220,7 +206,7 @@ def generate_random_jobs(num_jobs, max_priority, max_runtime, max_release_time):
         
         job = Job(job_id, priority, runtime, release_time, # job object
                  job_error_func, # error function
-                 lambda x, y: y if y < 0.000001 else random.uniform(0, y), # error location function
+                 lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), # error location function
                  job_comparison_func) # job comparison function
         
         if release_time not in jobs_at_random_times: 
@@ -233,6 +219,6 @@ def generate_random_jobs(num_jobs, max_priority, max_runtime, max_release_time):
     
     return random_jobs
 
-jobs = generate_random_jobs(num_jobs=10, max_priority=5, max_runtime=5, max_release_time=1)
+jobs = generate_random_jobs(num_jobs=10000, max_priority=5, max_runtime=5, max_release_time=1)
 
 scheduler.run_schedule( jobs )

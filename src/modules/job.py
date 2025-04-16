@@ -5,7 +5,7 @@ class Job:
                     release_time : int, error_func : Callable[ [ Type[ "Job" ] ], bool ],
                     error_loc_func : Callable[ [ Type[ "Job" ] ], bool ], 
                     comparison_func : Callable[ [ Type[ "Job" ], Type[ "Job" ] ], int ] ):
-        # The following are meta in formation about jobs
+        # The following are meta in formation about jobs 
         self._job_id : int = job_id
         self._job_priority : int = job_priority
 
@@ -47,8 +47,8 @@ class Job:
     def get_orig_runtime( self ):
         return self._orig_runtime
     
-    def progress( self, inc = 1 ) -> float:
-        self._in_error = self._error_func( self )
+    def progress( self, current_timestamp, inc = 1 ) -> float:
+        self._in_error = self._error_func( self, current_timestamp )
         
         if not self._in_error:
             inc = min( self._runtime, inc )
@@ -56,7 +56,7 @@ class Job:
             self._active_running_time += inc
             return inc
         else:
-            loc = self._error_loc_func( self, inc )
+            loc = self._error_loc_func( self, current_timestamp, inc )
             self._active_running_time += loc
             return loc
         
