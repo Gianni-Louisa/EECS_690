@@ -11,7 +11,6 @@ MIGRATION_OVERHEAD = 0.3
 RECOVERY_OVERHEAD = 0.3
 
 PERIOD = ( 2 * MEW * CHECKPOINTING_OVERHEAD ) ** (0.5)
-time_to_checkpoint = ( 2 * MEW * CHECKPOINTING_OVERHEAD ) ** (0.5)
 
 def job_error_func( job : Job, current_timestamp ):
     ret = random.uniform( 0, 1 )
@@ -50,17 +49,20 @@ def job_comparison_func( job1 : Job, job2 : Job ):
         return -1
     
 def machine_progression_func( machine : Machine, current_timestamp, progression_amount ):
-    global time_to_checkpoint
     if machine.is_machine_free():
         return ( False, progression_amount )
     
     else:
         curr_job = machine.get_curr_job()
 
-        if( current_timestamp >= time_to_checkpoint ):
-            curr_job.set_last_checkpoint_time( time_to_checkpoint )
-            machine.add_lock_time( CHECKPOINTING_OVERHEAD )
-            machine.trigger_checkpoint()
+        if( current_timestamp >= machine.get_checkpoint_time() ):
+            if machine._lock_time < 0.000001:
+                machine._lock_time = 0
+                curr_job.set_last_checkpoint_time( machine.get_checkpoint_time() )
+                machine.add_lock_time( CHECKPOINTING_OVERHEAD )
+                machine.trigger_checkpoint()
+                
+            machine.progress_checkpoint_time()
 
         if( progression_amount > machine._lock_time ):
             orig_lock_time = machine._lock_time
@@ -151,9 +153,7 @@ def reschedule_func( scheduler : GlobalScheduler ):
             break
 
 def curr_timestamp_func( scheduler : GlobalScheduler ):
-    global time_to_checkpoint
-    
-    total_progress_map = [ [ machine.get_id(), 0.5 ] for machine in scheduler.machines ]
+    total_progress_map = [ [ machine.get_id(), 1 ] for machine in scheduler.machines ]
 
     while any( [ progress[ 1 ] != 0 for progress in total_progress_map ] ):
         for progress in total_progress_map:
@@ -186,10 +186,6 @@ def curr_timestamp_func( scheduler : GlobalScheduler ):
             progress[ 1 ] -= ret
         
         total_progress_map.sort( key=lambda x : x[ 1 ], reverse=True )
-
-    if( scheduler._current_timestamp >= time_to_checkpoint ):
-        time_to_checkpoint += PERIOD
-
 
 
 scheduler = GlobalScheduler( 2, machine_progression_func, machine_checkpointing_func, new_job_func, reschedule_func, curr_timestamp_func )

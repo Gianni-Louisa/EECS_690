@@ -2,10 +2,13 @@ from modules.job import Job
 from typing import Callable, Type
 
 class Machine:
-    def __init__( self, id : int, progression_algo : Callable[ [ Type[ "Machine" ] ], None ], checkpoint_algo : Callable[ [ Type[ "Machine" ] ], None ] ) -> None:        
+    def __init__( self, id : int, checkpointing_progression, progression_algo : Callable[ [ Type[ "Machine" ] ], None ], checkpoint_algo : Callable[ [ Type[ "Machine" ] ], None ] ) -> None:        
         self._id : int = id
         self._curr_job : Job = None
         self._stored_checkpoints : dict[ int : int ] = {}
+
+        self._checkpoint_time = checkpointing_progression
+        self._checkpoint_progression = checkpointing_progression
 
         self._progression_algo = progression_algo
         self._checkpoint_algo = checkpoint_algo
@@ -63,3 +66,8 @@ class Machine:
         else:
             return False
         
+    def get_checkpoint_time( self ):
+        return self._checkpoint_time
+    
+    def progress_checkpoint_time( self ):
+        self._checkpoint_time += self._checkpoint_progression

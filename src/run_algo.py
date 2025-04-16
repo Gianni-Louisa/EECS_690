@@ -15,7 +15,8 @@ novelalgo_machine_params = [novelalgo.machine_progression_func,
                             novelalgo.machine_checkpointing_func,
                             novelalgo.new_job_func,
                             novelalgo.reschedule_func,
-                            novelalgo.curr_timestamp_func]
+                            novelalgo.curr_timestamp_func,
+                            novelalgo.PERIOD]
 
 # Print a list of jobs
 def print_jobs(list_jobs):
