@@ -78,19 +78,21 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines):
         orig_runtime = job.get_orig_runtime()
         waiting_time = job.get_waiting_time()
 
-        print(f'Job ({job_id}) p = {priority}, T = {orig_runtime}, r = {release_time}, w = {waiting_time}, s = {runtime / orig_runtime}')
+        print(f'Job ({job_id}) p = {priority}, T = {orig_runtime}, r = {release_time}, w = {waiting_time}, r = { runtime }, s = {runtime / orig_runtime}')
 
     
 if __name__ == '__main__':
     jobs = { 0 : [
-        Job(0, 1, 2, 0, novelalgo.job_error_func, lambda x, y, z : z, novelalgo.job_comparison_func),
-        Job(1, 2, 2, 0, novelalgo.job_error_func, lambda x, y, z : z, novelalgo.job_comparison_func),
-        Job(2, 3, 2, 0, novelalgo.job_error_func, lambda x, y, z : z, novelalgo.job_comparison_func),
-        Job(3, 4, 2, 0, novelalgo.job_error_func, lambda x, y, z : z, novelalgo.job_comparison_func),
-        Job(4, 5, 2, 0, novelalgo.job_error_func, lambda x, y, z : z, novelalgo.job_comparison_func),
-        Job(5, 6, 2, 0, novelalgo.job_error_func, lambda x, y, z : z, novelalgo.job_comparison_func),
-        Job(6, 7, 2, 0, novelalgo.job_error_func, lambda x, y, z : z, novelalgo.job_comparison_func),
-        Job(7, 8, 2, 0, novelalgo.job_error_func, lambda x, y, z : z, novelalgo.job_comparison_func),
+        Job(0, 1, 2, 0, novelalgo.job_error_func, lambda x, y, z : z, novelalgo.job_comparison_func), 
+    ],
+    1: [
+        Job(1, 2, 2, 1, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
+        Job(2, 3, 2, 1, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
+        Job(3, 4, 2, 1, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
+        Job(4, 5, 2, 1, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
+        Job(5, 6, 2, 1, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
+        Job(6, 7, 2, 1, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
+        Job(7, 8, 2, 1, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
     ] }
 
     run_single_set_of_jobs('novelalgo', jobs, 3)

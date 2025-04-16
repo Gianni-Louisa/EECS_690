@@ -61,9 +61,11 @@ def machine_progression_func( machine : Machine, current_timestamp, progression_
             time_to_checkpoint += ( 2 * MEW * CHECKPOINTING_OVERHEAD ) ** (0.5)
 
         if( progression_amount > machine._lock_time ):
+            orig_lock_time = machine._lock_time
+            curr_job.add_waiting_time( machine._lock_time )
             ret = curr_job.progress( current_timestamp, progression_amount - machine._lock_time )
             machine._lock_time = 0
-            return ( True, ret )
+            return ( True, ret + orig_lock_time )
 
         else:
             if math.isclose( machine._lock_time, progression_amount , rel_tol=1e-9 ):
@@ -73,6 +75,7 @@ def machine_progression_func( machine : Machine, current_timestamp, progression_
             else:
                 machine._lock_time -= progression_amount
 
+            machine.get_curr_job().add_waiting_time( progression_amount )
             return ( True, progression_amount )
         
 
@@ -122,7 +125,7 @@ def reschedule_func( scheduler : GlobalScheduler ):
             new_job = scheduler.task_queue.pop( 0 )
             scheduler.machines[ machine_to_replace ].set_curr_job( new_job )
 
-            if new_job.get_first_schedule_time == -1:
+            if new_job.get_first_schedule_time() == -1:
                 new_job.set_first_schedule_time( scheduler._current_timestamp )
 
             kill_cost = new_job.get_orig_runtime() - new_job.get_runtime()
@@ -219,6 +222,6 @@ def generate_random_jobs(num_jobs, max_priority, max_runtime, max_release_time):
     
     return random_jobs
 
-jobs = generate_random_jobs(num_jobs=10000, max_priority=5, max_runtime=5, max_release_time=1)
+#jobs = generate_random_jobs(num_jobs=10000, max_priority=5, max_runtime=5, max_release_time=1)
 
-scheduler.run_schedule( jobs )
+#scheduler.run_schedule( jobs )

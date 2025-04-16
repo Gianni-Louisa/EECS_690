@@ -46,6 +46,7 @@ class Job:
     
     def restart_job( self ):
         self._runtime = self._orig_runtime
+        self._in_error = False
 
     def get_orig_runtime( self ):
         return self._orig_runtime
