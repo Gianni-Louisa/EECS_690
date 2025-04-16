@@ -8,15 +8,18 @@ MEW = 3
 LAMBDA = 1 / MEW
 CHECKPOINTING_OVERHEAD = 0.1
 MIGRATION_OVERHEAD = 0.3
-RECOVERY_OVERHEAD = 0.1
+RECOVERY_OVERHEAD = 0.3
 
+PERIOD = ( 2 * MEW * CHECKPOINTING_OVERHEAD ) ** (0.5)
 time_to_checkpoint = ( 2 * MEW * CHECKPOINTING_OVERHEAD ) ** (0.5)
 
 def job_error_func( job : Job, current_timestamp ):
     ret = random.uniform( 0, 1 )
     p = 1 - ( math.e ) ** ( -LAMBDA * ( current_timestamp - job.get_last_checkpoint_time() ) )
+    #print(p)
 
     if p > ret:
+        #print('EEROR')
         return True
 
     else:
@@ -58,7 +61,6 @@ def machine_progression_func( machine : Machine, current_timestamp, progression_
             curr_job.set_last_checkpoint_time( time_to_checkpoint )
             machine.add_lock_time( CHECKPOINTING_OVERHEAD )
             machine.trigger_checkpoint()
-            time_to_checkpoint += ( 2 * MEW * CHECKPOINTING_OVERHEAD ) ** (0.5)
 
         if( progression_amount > machine._lock_time ):
             orig_lock_time = machine._lock_time
@@ -141,6 +143,7 @@ def reschedule_func( scheduler : GlobalScheduler ):
                 if success and new_job.get_last_run_machine() != scheduler.machines[ machine_to_replace ].get_id():
                     scheduler.machines[ new_job.get_last_run_machine() ].add_lock_time( MIGRATION_OVERHEAD )
                     new_job.revert_to_checkpoint(scheduler.machines[ machine_to_replace ]._stored_checkpoints[new_job.get_id()])
+                    new_job.set_last_checkpoint_time( scheduler._current_timestamp )
 
             new_job.set_last_run_machine( scheduler.machines[ machine_to_replace ].get_id() )
 
@@ -148,7 +151,9 @@ def reschedule_func( scheduler : GlobalScheduler ):
             break
 
 def curr_timestamp_func( scheduler : GlobalScheduler ):
-    total_progress_map = [ [ machine.get_id(), 1 ] for machine in scheduler.machines ]
+    global time_to_checkpoint
+    
+    total_progress_map = [ [ machine.get_id(), 0.5 ] for machine in scheduler.machines ]
 
     while any( [ progress[ 1 ] != 0 for progress in total_progress_map ] ):
         for progress in total_progress_map:
@@ -164,6 +169,7 @@ def curr_timestamp_func( scheduler : GlobalScheduler ):
             
             if curr_job.is_job_complete():
                 curr_job.add_waiting_time( scheduler._current_timestamp + ret - curr_job.get_release_time() - curr_job.get_job_active_running_time() )
+                #print(', '.join(map(str, [(scheduler._current_timestamp), ret, - curr_job.get_release_time(), - curr_job.get_job_active_running_time()])))
                 scheduler.finished_tasks.append( curr_job )
                 curr_machine.set_curr_job( None )
 
@@ -172,6 +178,7 @@ def curr_timestamp_func( scheduler : GlobalScheduler ):
                     if curr_job.get_id() in curr_machine._stored_checkpoints.keys():
                         curr_job.revert_to_checkpoint( curr_machine._stored_checkpoints[ curr_job.get_id() ] )
                         curr_machine.add_lock_time( RECOVERY_OVERHEAD )
+                        curr_job.set_last_checkpoint_time( scheduler._current_timestamp + ret )
 
                     else:
                         curr_job.restart_job()
@@ -179,6 +186,10 @@ def curr_timestamp_func( scheduler : GlobalScheduler ):
             progress[ 1 ] -= ret
         
         total_progress_map.sort( key=lambda x : x[ 1 ], reverse=True )
+
+    if( scheduler._current_timestamp >= time_to_checkpoint ):
+        time_to_checkpoint += PERIOD
+
 
 
 scheduler = GlobalScheduler( 2, machine_progression_func, machine_checkpointing_func, new_job_func, reschedule_func, curr_timestamp_func )

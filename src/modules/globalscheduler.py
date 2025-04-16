@@ -34,5 +34,5 @@ class GlobalScheduler:
             if all( machine.is_machine_free() for machine in self.machines ) and len( self.task_queue ) == 0 and self._current_timestamp > max( list_of_jobs.keys() ):
                 return
 
-            self._current_timestamp += 1
+            self._current_timestamp += 0.5
 

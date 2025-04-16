@@ -68,7 +68,11 @@ class Job:
             return loc
         
     def add_waiting_time( self, waiting_time ):
+        if waiting_time < 0:
+            x = 1
         self._waiting_time += waiting_time
+        #print('HERE')
+        #print(waiting_time)
 
     def is_job_complete( self ):
         return self._runtime == 0
@@ -78,7 +82,7 @@ class Job:
     
     def revert_to_checkpoint( self, restart_point : int ):
         if restart_point < 0:
-            restart_point == 0 
+            restart_point = 0 
         self._runtime = restart_point
         self._in_error = False
 
