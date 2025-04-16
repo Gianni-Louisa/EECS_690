@@ -13,6 +13,9 @@ class GlobalScheduler:
         self._new_job_func = new_job_func
         self._reschedule_func = reschedule_func
 
+    def get_current_timestamp(self):
+        return self._current_timestamp
+
 
     def run_schedule( self, list_of_jobs ):
         self.task_queue = []

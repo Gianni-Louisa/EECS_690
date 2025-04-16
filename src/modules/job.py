@@ -27,6 +27,9 @@ class Job:
 
     def get_first_schedule_time( self ):
         return self._first_schedule_time
+
+    def get_priority(self):
+        return self._job_priority
     
     def get_release_time( self ):
         return self._release_time
@@ -46,6 +49,9 @@ class Job:
 
     def get_orig_runtime( self ):
         return self._orig_runtime
+
+    def get_waiting_time(self):
+        return self._waiting_time
     
     def progress( self, current_timestamp, inc = 1 ) -> float:
         self._in_error = self._error_func( self, current_timestamp )

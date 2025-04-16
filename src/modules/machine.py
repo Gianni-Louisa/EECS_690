@@ -23,6 +23,12 @@ class Machine:
     def get_id( self ):
         return self._id
 
+    def get_active_time(self):
+        return self._active_time
+
+    def get_waiting_time(self):
+        return self._waiting_time
+
     def progress( self, current_timestamp, progression_amount ):
         is_active, progression_time = self._progression_algo( self, current_timestamp, progression_amount )
 
