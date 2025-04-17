@@ -2,7 +2,7 @@ import random
 from copy import deepcopy
 import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use('TkAgg')
+#matplotlib.use('TkAgg')
 
 from modules.job import Job
 from modules.globalscheduler import GlobalScheduler
@@ -177,20 +177,21 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing
 
 
 # Run job scheduler each time on a list of job dicts and print and graph statistics
-def run_set_of_jobs(algorithm_list, job_lists, num_machines, suppress_graphing=True):
-    n = len(job_lists)
+def run_set_of_jobs(algorithm_list, job_list_lambdas, func_arg_list, num_machines, suppress_graphing=True):
+    n = len(job_list_lambdas)
     stat_dict = { }
     complete_stat_list = []
     stat_every_run = []
 
     # Run suite of jobs n times for each algorithm
-    for algorithm in algorithm_list:
+    for i, algorithm in enumerate(algorithm_list):
         stats = (0, 0, 0)
         total_stats = []
         
-        
-        for job_list in job_lists:
-            sing_stats = run_single_set_of_jobs(algorithm, { i : [ deepcopy( j ) for j in jl ] for i, jl in job_list.items()  }, num_machines, True)
+        for job_list_lambda in job_list_lambdas:
+            job_list = job_list_lambda(*func_arg_list[i])
+            #job_list_copy = { i : [ deepcopy( j ) for j in jl ] for i, jl in job_list.items()  }
+            sing_stats = run_single_set_of_jobs(algorithm, job_list, num_machines, True)
 
             stats = tuple(x + y for x, y in zip(sing_stats, stats))
             total_stats.append(sing_stats)
@@ -215,24 +216,25 @@ def run_set_of_jobs(algorithm_list, job_lists, num_machines, suppress_graphing=T
 
     
 if __name__ == '__main__':
-    jobs = [{ 0 : [
-        Job(0, 1, 2, 0, novelalgo.job_error_func, lambda x, y, z : z, novelalgo.job_comparison_func), 
+    jobs = lambda error_func, job_compare_func : { 0 : [
+        Job(0, 1, 2, 0, error_func, lambda x, y, z : z, job_compare_func), 
     ],
     1: [
-        Job(1, 2, 2, 1, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
-        Job(2, 3, 2, 1, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
-        Job(3, 4, 2, 1, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
-        Job(4, 5, 2, 1, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
-        Job(5, 6, 2, 1, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
-        Job(6, 7, 2, 1, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
-        Job(7, 8, 2, 1, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
-    ] }]
+        Job(1, 2, 2, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+        Job(2, 3, 2, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+        Job(3, 4, 2, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+        Job(4, 5, 2, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+        Job(5, 6, 2, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+        Job(6, 7, 2, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+        Job(7, 8, 2, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+    ] }
 
-    job2 = [{ 0 : [
-        #Job(5, 6, 2, 0, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
-        Job(6, 7, 2, 0, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
-        Job(7, 8, 2, 0, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
-    ] }]
+    job2 = lambda error_func, job_compare_func : { 0 : [
+        #Job(5, 6, 2, 0, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+        Job(6, 7, 2, 0, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+        Job(7, 8, 2, 0, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+    ] }
 
-    #run_single_set_of_jobs('lptalgo', jobs[0], 3)
-    run_set_of_jobs(['lptalgo'], [ deepcopy( jobs[ 0 ] ) for i in range( 1000 )  ], 3, False)
+    LPTLambdaParams = [LPTorg.job_error_func, LPTorg.job_comparison_func]
+    #run_single_set_of_jobs('lptalgo', jobs(*LPTLambdaParams), 3)
+    run_set_of_jobs(['lptalgo'], [ jobs for _ in range( 10 )  ], [LPTLambdaParams], 3)
