@@ -23,7 +23,24 @@ def job_error_func( job : Job, current_timestamp ):
         return False
     
 def job_comparison_func( job1 : Job, job2 : Job ):
-    return 0
+    #This function compares the jobs to sort them within the global scheduler.
+    #LPT sorts by longest processing time first, has no priority system.
+    if job1._runtime == job2._runtime: #first check if they have the same runtime.
+        #if they have the same runtime, then just sort by release time to get the earlier job higher priority.
+        if job1._release_time == job2._release_time:
+            return 0 #same release time then just return 0, doesn't matter which way is sorted.
+        
+        elif job1._release_time > job2._release_time:
+            return -1 #job1 release time is greater, therefore it is a newer job so it is behind job2.
+        
+        else:
+            return 1
+    
+    elif job1._runtime > job2._runtime:
+        return 1 #job1 has a longer runtime, so it stays in front.
+    
+    else:
+        return -1 #job2 has a longer runtime, so swap it to front.
     
 def machine_progression_func( machine : Machine, current_timestamp, progression_amount ):
     if machine.is_machine_free():
