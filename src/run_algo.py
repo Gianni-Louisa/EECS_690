@@ -1,11 +1,12 @@
 import random
+from copy import deepcopy
+import matplotlib.pyplot as plt
 
 from modules.job import Job
 from modules.globalscheduler import GlobalScheduler
 from modules.machine import Machine
 
 import novelalgo
-from copy import deepcopy
 
 # Hightest Priority
 HIGHEST_PRIORITY = 10
@@ -34,6 +35,44 @@ def print_jobs(list_jobs):
     print()
 
     
+# Make bar graph of different average statistics to compare algorithms
+def graph_averages(algorithm_list, stat_list):
+    stat_lable_list = ['Average Total Runtime over Area', 'Average Weighted Stretch', 'Average Wait Time']
+
+    # Make a bar graph for each stat in the stat list
+    for i, stat_label in enumerate(stat_lable_list):
+        stat = [stat[i] for stat in stat_list]
+
+        plt.figure()
+        plt.bar(algorithm_list, stat)
+        plt.title('Comparison of ' + stat_label)
+        plt.xlabel('Algorithm')
+        plt.ylabel(stat_label)
+
+    #plt.show()
+
+    
+# Make overlapping normal distributions for statistics
+def graph_distributions(algorithm_list, complete_stat_lists, n_trials):
+    stat_label_list = ['Average Total Runtime over Area', 'Average Weighted Stretch', 'Average Wait Time']
+
+    # Make a histogram for each stat
+    for i, stat_label in enumerate(stat_label_list):
+        plt.figure()
+        
+        for j, algo in enumerate(algorithm_list):
+            stat_list = [stat_list[i] for stat_list in complete_stat_lists[j]]
+
+            if stat_label == 'Average Total Runtime over Area':
+                plt.hist(stat_list, 4, label=algo)
+            else:
+                plt.hist(stat_list, 10, label=algo)
+
+        plt.title('Comparison of ' + str(n_trials) + ' of ' + stat_label)
+        plt.xlabel(stat_label)
+        plt.ylabel('Number of Occurrences')
+                         
+
 # Run a set of jobs once and returns various statistics
 def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing=False):
     # Variable decls
@@ -55,16 +94,17 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing
     # Run jobs
     scheduler.run_schedule(dict_jobs)
 
-    novelalgo.time_to_checkpoint = novelalgo.PERIOD
+    # Reset time to checkpoint for next 
+    #novelalgo.time_to_checkpoint = novelalgo.PERIOD
 
 
     # Get and compute machine statistics
-    total_runtime = scheduler.get_current_timestamp() + 1
+    total_schedule_runtime = scheduler.get_current_timestamp() + 1
     
     # Print total statistics from running
     if not suppress_printing:
         print(f'Resulting Scheduler Statistics:')
-        print(f'Time At Completion of All Tasks: {total_runtime}')
+        print(f'Time At Completion of All Tasks: {total_schedule_runtime}')
         print('\n')
 
     # Print machine stats
@@ -77,7 +117,7 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing
         waiting_time = machine.get_waiting_time()
 
         if not suppress_printing:
-            print(f'Machine {machine_id}: active_time = {active_time}, waiting_time = {waiting_time}, active_time / total_time = {active_time / total_runtime}')
+            print(f'Machine {machine_id}: active_time = {active_time}, waiting_time = {waiting_time}, active_time / total_time = {active_time / total_schedule_runtime}')
 
     # Print job stats
     if not suppress_printing:
@@ -86,6 +126,7 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing
     sum_job_length = 0
     sum_wait_time = 0
     sum_weighted_stretch = 0
+    sum_ideal_job_length = 0
     
     for job in list_jobs:
         job_id = job.get_id()
@@ -94,26 +135,25 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing
         runtime = job.get_job_active_running_time()
         orig_runtime = job.get_orig_runtime()
         waiting_time = job.get_waiting_time()
+        total_runtime = job.get_completion_time() - release_time
 
-        if (waiting_time < 0.39):
-            x = 1
-
-        sum_job_length += orig_runtime
+        sum_job_length += total_runtime
+        sum_ideal_job_length += orig_runtime
         sum_wait_time += waiting_time
-        sum_weighted_stretch += priority * (runtime + waiting_time) / orig_runtime
+        sum_weighted_stretch += priority * total_runtime / orig_runtime
 
         if not suppress_printing:
-            print(f'Job ({job_id}) p = {priority}, T = {orig_runtime}, r = {release_time}, w = {waiting_time}, T_r = { runtime }, s = {runtime / orig_runtime}')
+            print(f'Job ({job_id}) p = {priority}, T = {orig_runtime}, r = {release_time}, w = {waiting_time}, rT = { runtime }, r_T = {total_runtime}, s = {runtime / orig_runtime}')
 
     # Final Statistics
     num_jobs = len(list_jobs)
     avg_wait_time = sum_wait_time / num_jobs
     avg_weighted_stretch = sum_weighted_stretch / num_jobs
-    area = sum_job_length / len(scheduler.machines)
-    total_runtime_over_area = total_runtime / area
+    area = sum_ideal_job_length / len(scheduler.machines)
+    total_runtime_over_area = total_schedule_runtime / area
 
     if not suppress_printing:
-        print(f'\nTotal Time: {total_runtime}, Total Time / Area: {total_runtime_over_area}')
+        print(f'\nTotal Time: {total_schedule_runtime}, Total Time / Area: {total_runtime_over_area}')
         print(f'Average Weighted Stretch: {avg_weighted_stretch}, Average Wait Time: {avg_wait_time}')
         print()
 
@@ -124,24 +164,37 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing
 def run_set_of_jobs(algorithm_list, job_lists, num_machines, suppress_graphing=True):
     n = len(job_lists)
     stat_dict = { }
+    complete_stat_list = []
+    stat_every_run = []
 
     # Run suite of jobs n times for each algorithm
     for algorithm in algorithm_list:
         stats = (0, 0, 0)
+        total_stats = []
         
         for job_list in job_lists:
             sing_stats = run_single_set_of_jobs(algorithm, job_list, num_machines, True)
 
             stats = tuple(x + y for x, y in zip(sing_stats, stats))
+            total_stats.append(sing_stats)
 
         stats = [x / n for x in stats]
+        complete_stat_list.append(stats)
+        stat_every_run.append(total_stats)
 
         # Print Results
         print(f'{algorithm}:')
-        print(f'Average Total Time: {stats[0]}')
-        print(f'Average Time / Area: {stats[1]}')
+        print(f'Average Time / Area: {stats[0]}')
+        print(f'Average Weighted Stretch: {stats[1]}')
         print(f'Average Average Wait Time: {stats[2]}')
         print()
+
+    # Make graph
+    if not suppress_graphing:
+        graph_averages(['Novel Algorithm'], complete_stat_list)
+        graph_distributions(['Novel Algorithm'], stat_every_run, n)
+
+        plt.show()
 
     
 if __name__ == '__main__':
@@ -164,5 +217,5 @@ if __name__ == '__main__':
         Job(7, 8, 2, 0, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
     ] }]
 
-    run_single_set_of_jobs('novelalgo', jobs[0], 3)
-    #run_set_of_jobs(['novelalgo'], [ deepcopy( jobs[ 0 ] ) for i in range( 10000 )  ], 3)
+    #run_single_set_of_jobs('novelalgo', jobs[0], 3)
+    run_set_of_jobs(['novelalgo'], [ deepcopy( jobs[ 0 ] ) for i in range( 100 )  ], 3, False)
