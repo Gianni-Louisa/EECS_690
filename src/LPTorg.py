@@ -32,7 +32,7 @@ def machine_progression_func( machine : Machine, current_timestamp, progression_
     else:
         curr_job = machine.get_curr_job()
 
-        if( current_timestamp >= machine.get_checkpoint_time() ):
+        while( current_timestamp >= machine.get_checkpoint_time() ):
             curr_job.set_last_checkpoint_time( machine.get_checkpoint_time() )                
             machine.progress_checkpoint_time()
 

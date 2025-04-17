@@ -217,16 +217,16 @@ def run_set_of_jobs(algorithm_list, job_list_lambdas, func_arg_list, num_machine
     
 if __name__ == '__main__':
     jobs = lambda error_func, job_compare_func : { 0 : [
-        Job(0, 1, 2, 0, error_func, lambda x, y, z : z, job_compare_func), 
+        Job(0, 1, 10, 0, error_func, lambda x, y, z : z, job_compare_func), 
     ],
     1: [
-        Job(1, 2, 2, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
-        Job(2, 3, 2, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
-        Job(3, 4, 2, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
-        Job(4, 5, 2, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
-        Job(5, 6, 2, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
-        Job(6, 7, 2, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
-        Job(7, 8, 2, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+        Job(1, 2, 10, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+        Job(2, 3, 10, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+        Job(3, 4, 10, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+        Job(4, 5, 10, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+        Job(5, 6, 10, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+        Job(6, 7, 10, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
+        Job(7, 8, 10, 1, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
     ] }
 
     job2 = lambda error_func, job_compare_func : { 0 : [
@@ -236,5 +236,6 @@ if __name__ == '__main__':
     ] }
 
     LPTLambdaParams = [LPTorg.job_error_func, LPTorg.job_comparison_func]
+    NovelLambdaParams = [novelalgo.job_error_func, novelalgo.job_comparison_func]
     #run_single_set_of_jobs('lptalgo', jobs(*LPTLambdaParams), 3)
-    run_set_of_jobs(['lptalgo'], [ jobs for _ in range( 10 )  ], [LPTLambdaParams], 3)
+    run_set_of_jobs(['novelalgo', 'lptalgo'], [ jobs for _ in range( 10000 ) ], [NovelLambdaParams, LPTLambdaParams], 3)
