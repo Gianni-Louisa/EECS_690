@@ -238,4 +238,4 @@ if __name__ == '__main__':
     LPTLambdaParams = [LPTorg.job_error_func, LPTorg.job_comparison_func]
     NovelLambdaParams = [novelalgo.job_error_func, novelalgo.job_comparison_func]
     #run_single_set_of_jobs('lptalgo', jobs(*LPTLambdaParams), 3)
-    run_set_of_jobs(['novelalgo', 'lptalgo'], [ jobs for _ in range( 10000 ) ], [NovelLambdaParams, LPTLambdaParams], 3)
+    run_set_of_jobs(['novelalgo', 'lptalgo'], [ jobs for _ in range( 1000 ) ], [NovelLambdaParams, LPTLambdaParams], 3)

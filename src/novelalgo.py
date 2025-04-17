@@ -54,14 +54,13 @@ def machine_progression_func( machine : Machine, current_timestamp, progression_
     
     else:
         curr_job = machine.get_curr_job()
+        if machine._lock_time < 0.000001:
+            machine._lock_time = 0
 
         while( current_timestamp >= machine.get_checkpoint_time() ):
-            if machine._lock_time < 0.000001:
-                machine._lock_time = 0
-                curr_job.set_last_checkpoint_time( machine.get_checkpoint_time() )
-                machine.add_lock_time( CHECKPOINTING_OVERHEAD )
-                machine.trigger_checkpoint()
-                
+            curr_job.set_last_checkpoint_time( machine.get_checkpoint_time() )
+            machine.add_lock_time( CHECKPOINTING_OVERHEAD )
+            machine.trigger_checkpoint()
             machine.progress_checkpoint_time()
 
         if( progression_amount > machine._lock_time ):
