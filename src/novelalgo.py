@@ -176,9 +176,11 @@ def curr_timestamp_func( scheduler : GlobalScheduler ):
 
             else:
                 if curr_job.is_in_error():
+                    curr_machine.add_lock_time( RECOVERY_OVERHEAD )
+                    
                     if curr_job.get_id() in curr_machine._stored_checkpoints.keys():
                         curr_job.revert_to_checkpoint( curr_machine._stored_checkpoints[ curr_job.get_id() ] )
-                        curr_machine.add_lock_time( RECOVERY_OVERHEAD )
+                        
                         curr_job.set_last_checkpoint_time( scheduler._current_timestamp + ret )
 
                     else:
