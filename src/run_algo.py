@@ -1,12 +1,15 @@
 import random
 from copy import deepcopy
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')
 
 from modules.job import Job
 from modules.globalscheduler import GlobalScheduler
 from modules.machine import Machine
 
 import novelalgo
+import LPTorg
 
 # Hightest Priority
 HIGHEST_PRIORITY = 10
@@ -18,6 +21,15 @@ novelalgo_machine_params = [novelalgo.machine_progression_func,
                             novelalgo.reschedule_func,
                             novelalgo.curr_timestamp_func,
                             novelalgo.PERIOD]
+
+lpt_machine_params = [LPTorg.machine_progression_func,
+                      LPTorg.machine_checkpointing_func,
+                      LPTorg.new_job_func,
+                      LPTorg.reschedule_func,
+                      LPTorg.curr_timestamp_func,
+                      LPTorg.PERIOD]
+
+
 
 # Print a list of jobs
 def print_jobs(list_jobs):
@@ -84,6 +96,10 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing
     if (algorithm == 'novelalgo'):
         scheduler = GlobalScheduler(num_machines,
                                     *novelalgo_machine_params)
+        
+    elif (algorithm == 'lptalgo'):
+        scheduler = GlobalScheduler(num_machines,
+                                    *lpt_machine_params)
     else:
         raise ValueError('Algorithm Not Found')
 
@@ -172,8 +188,9 @@ def run_set_of_jobs(algorithm_list, job_lists, num_machines, suppress_graphing=T
         stats = (0, 0, 0)
         total_stats = []
         
+        
         for job_list in job_lists:
-            sing_stats = run_single_set_of_jobs(algorithm, job_list, num_machines, True)
+            sing_stats = run_single_set_of_jobs(algorithm, { i : [ deepcopy( j ) for j in jl ] for i, jl in job_list.items()  }, num_machines, True)
 
             stats = tuple(x + y for x, y in zip(sing_stats, stats))
             total_stats.append(sing_stats)
@@ -217,5 +234,5 @@ if __name__ == '__main__':
         Job(7, 8, 2, 0, novelalgo.job_error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), novelalgo.job_comparison_func),
     ] }]
 
-    #run_single_set_of_jobs('novelalgo', jobs[0], 3)
-    run_set_of_jobs(['novelalgo'], [ deepcopy( jobs[ 0 ] ) for i in range( 100 )  ], 3, False)
+    #run_single_set_of_jobs('lptalgo', jobs[0], 3)
+    run_set_of_jobs(['lptalgo'], [ deepcopy( jobs[ 0 ] ) for i in range( 1000 )  ], 3, False)

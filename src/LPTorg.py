@@ -32,7 +32,8 @@ def machine_progression_func( machine : Machine, current_timestamp, progression_
     else:
         curr_job = machine.get_curr_job()
 
-        if( current_timestamp >= machine.get_checkpoint_time() ):                
+        if( current_timestamp >= machine.get_checkpoint_time() ):
+            curr_job.set_last_checkpoint_time( machine.get_checkpoint_time() )                
             machine.progress_checkpoint_time()
 
         if( progression_amount > machine._lock_time ):
@@ -69,6 +70,7 @@ def reschedule_func( scheduler : GlobalScheduler ):
             machine._lock_time = 0
             new_job = scheduler.task_queue.pop( 0 )
             new_job.set_first_schedule_time( scheduler._current_timestamp )
+            machine.set_curr_job( new_job )
 
 def curr_timestamp_func( scheduler : GlobalScheduler ):
     total_progress_map = [ [ machine.get_id(), 1 ] for machine in scheduler.machines ]

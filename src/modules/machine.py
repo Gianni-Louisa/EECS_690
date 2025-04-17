@@ -21,7 +21,7 @@ class Machine:
         self._lock_time += lock_time
 
     def get_lock_time( self ):
-        return self._lock
+        return self._lock_time
 
     def get_id( self ):
         return self._id
