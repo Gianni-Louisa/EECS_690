@@ -22,6 +22,7 @@ class Job:
         self._last_checkpoint_time : int = -1
         self._active_running_time : int = 0
         self._waiting_time : int = 0
+        self._completion_time : float = 0
         self._in_error = False
         self._last_run_machine = -1
 
@@ -53,6 +54,12 @@ class Job:
 
     def get_waiting_time(self):
         return self._waiting_time
+    
+    def set_completion_time( self, completion_time ):
+        self._completion_time = completion_time
+        
+    def get_completion_time( self ):
+        return self._completion_time
     
     def progress( self, current_timestamp, inc = 1 ) -> float:
         self._in_error = self._error_func( self, current_timestamp )
