@@ -94,7 +94,7 @@ def new_job_func( scheduler : GlobalScheduler, job : Job ):
     scheduler.task_queue.sort( reverse=True)
 
 def reschedule_func( scheduler : GlobalScheduler ):
-    while True and len( scheduler.task_queue ) > 0:
+    while len( scheduler.task_queue ) > 0:
         machine_to_replace = None
         job_to_replace = None
         found_open_machine = False
