@@ -216,6 +216,33 @@ def run_set_of_jobs(algorithm_list, job_list_lambdas, func_arg_list, num_machine
 
     
 if __name__ == '__main__':
+    
+        # Define parameters for each algorithm
+    LPTLambdaParams = [LPTorg.job_error_func, LPTorg.job_comparison_func]
+    NovelLambdaParams = [novelalgo.job_error_func, novelalgo.job_comparison_func]
+    
+    # ------------------------------ Random Job Testing ------------------------------
+    def THE_Job_Generator(error_func, job_compare_func):
+        return novelalgo.generate_random_jobs(
+            num_jobs=2000,          
+            max_priority=10,      
+            max_runtime=20,    
+            max_release_time=10
+        )
+    
+    
+    # Run the algorithms with the same set of randomly generated jobs
+    
+    # run_set_of_jobs(
+    #     ['novelalgo', 'lptalgo'], 
+    #     [THE_Job_Generator for _ in range(10)], 
+    #     [NovelLambdaParams, LPTLambdaParams], 
+    #     4, 
+    #     suppress_graphing=False  
+    # )
+
+    
+    # ------------------------------ TEST JOBS ------------------------------
     jobs = lambda error_func, job_compare_func : { 0 : [
         Job(0, 1, 10, 0, error_func, lambda x, y, z : z, job_compare_func), 
     ],
@@ -235,7 +262,8 @@ if __name__ == '__main__':
         Job(7, 8, 2, 0, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
     ] }
 
-    LPTLambdaParams = [LPTorg.job_error_func, LPTorg.job_comparison_func]
-    NovelLambdaParams = [novelalgo.job_error_func, novelalgo.job_comparison_func]
+
     #run_single_set_of_jobs('lptalgo', jobs(*LPTLambdaParams), 3)
     run_set_of_jobs(['novelalgo', 'lptalgo'], [ jobs for _ in range( 1000 ) ], [NovelLambdaParams, LPTLambdaParams], 3)
+
+   
