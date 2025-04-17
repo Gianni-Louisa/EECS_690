@@ -168,8 +168,8 @@ def curr_timestamp_func( scheduler : GlobalScheduler ):
             curr_job = curr_machine.get_curr_job()
             
             if curr_job.is_job_complete():
-                curr_job.add_waiting_time( scheduler._current_timestamp + ret - curr_job.get_release_time() - curr_job.get_job_active_running_time() )
-                curr_job.set_completion_time( scheduler._current_timestamp + ret )
+                curr_job.set_completion_time( scheduler._current_timestamp + ret + curr_job.get_waiting_time() )
+                curr_job.add_waiting_time( scheduler._current_timestamp + ret - curr_job.get_release_time() - curr_job.get_job_active_running_time())
                 #print(', '.join(map(str, [(scheduler._current_timestamp), ret, - curr_job.get_release_time(), - curr_job.get_job_active_running_time()])))
                 scheduler.finished_tasks.append( curr_job )
                 curr_machine.set_curr_job( None )
