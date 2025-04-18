@@ -32,6 +32,7 @@ lpt_machine_params = [LPTorg.machine_progression_func,
                       LPTorg.reschedule_func,
                       LPTorg.curr_timestamp_func,
                       LPTorg.PERIOD]
+
 random_machine_params = [randomafscheduler.machine_progression_func,
                       randomafscheduler.machine_checkpointing_func,
                       randomafscheduler.new_job_func,
@@ -243,9 +244,13 @@ def run_set_of_jobs(algorithm_list, job_list_list, func_arg_list, num_machines, 
                                        'randomalgo' : 'Random Algorithm' }
         algorithm_titles = [algorithm_title_dictionary[algo] for algo in algorithm_list]
 
+        # Plot Everything
         plots += graph_averages(algorithm_titles, complete_stat_list)
         plots += graph_distributions(algorithm_titles, stat_every_run, n)
- 
+
+        # Plot only LIST and Novel
+        plots += graph_averages(algorithm_titles[:-1], complete_stat_list[:-1])
+        plots += graph_distributions(algorithm_titles[:-1], stat_every_run[:-1], n)
 
         # Show graph or save to pdf
         show = True # Change if you want a pdf
@@ -289,5 +294,5 @@ if __name__ == '__main__':
     #run_single_set_of_jobs('lptalgo', jobs(*LPTLambdaParams), 3)
     #run_set_of_jobs(['novelalgo', 'lptalgo'], [ jobs for _ in range( 1000 ) ], [NovelLambdaParams, LPTLambdaParams], 3)
 
-    jobs = [generate_random_jobs(100, HIGHEST_PRIORITY, 10, 100) for _ in range(1000)]
-    run_set_of_jobs(['novelalgo', 'lptalgo'], jobs, [NovelLambdaParams, LPTLambdaParams], 4, False)
+    jobs = [generate_random_jobs(100, HIGHEST_PRIORITY, 10, 50) for _ in range(100)]
+    run_set_of_jobs(['novelalgo', 'lptalgo', 'randomalgo'], jobs, [NovelLambdaParams, LPTLambdaParams, RandomAlgoParams], 4, False)

@@ -1,0 +1,24 @@
+novelalgo:
+Average Time / Area: 1.5195274839294939
+	Variance: 3033.388182955945
+Average Weighted Stretch: 129.23065570010604
+	Variance: 4193.497405625882
+Average Average Wait Time: 109.63293963712438
+	Variance: 7469.761665004506
+
+lptalgo:
+Average Time / Area: 1.902187655069909
+	Variance: 5847.156959572601
+Average Weighted Stretch: 179.33973053238918
+	Variance: 12192.059363099113
+Average Average Wait Time: 104.98200000000004
+	Variance: 8730.56245290628
+
+randomalgo:
+Average Time / Area: 131.56397468343047
+	Variance: 22925686.43739296
+Average Weighted Stretch: 9951.997910124966
+	Variance: 37117954.02747593
+Average Average Wait Time: 6228.433359999149
+	Variance: 59400329.39929241
+
