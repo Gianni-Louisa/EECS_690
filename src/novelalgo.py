@@ -184,10 +184,9 @@ def curr_timestamp_func( scheduler : GlobalScheduler ):
         
         total_progress_map.sort( key=lambda x : x[ 1 ], reverse=True )
 
-
+'''
 scheduler = GlobalScheduler( 3, machine_progression_func, machine_checkpointing_func, new_job_func, reschedule_func, curr_timestamp_func )
 
-<<<<<<< Updated upstream
 jobs = { 0 : [
         Job(0, 1, 2, 0, job_error_func, lambda x, y, z : z, job_comparison_func),
         Job(1, 2, 2, 0, job_error_func, lambda x, y, z : z, job_comparison_func),
@@ -198,6 +197,7 @@ jobs = { 0 : [
         Job(6, 7, 2, 0, job_error_func, lambda x, y, z : z, job_comparison_func),
         Job(7, 8, 2, 0, job_error_func, lambda x, y, z : z, job_comparison_func),
     ] }
+'''
 
 # # Currently I have it setup to randomly generate jobs, half at time 0 and the rest at random times
 # def generate_random_jobs(num_jobs, max_priority, max_runtime, max_release_time): 
@@ -237,8 +237,5 @@ jobs = { 0 : [
 #         random_jobs[release_time] = jobs # add the jobs at random times to the dictionary
     
 #     return random_jobs
-=======
-#jobs = generate_random_jobs(num_jobs=10000, max_priority=5, max_runtime=5, max_release_time=1)
->>>>>>> Stashed changes
 
-# jobs = generate_random_jobs(num_jobs=10, max_priority=5, max_runtime=5, max_release_time=1)
+#jobs = generate_random_jobs(num_jobs=10000, max_priority=5, max_runtime=5, max_release_time=1)
