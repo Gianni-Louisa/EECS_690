@@ -2,9 +2,9 @@ from typing import Callable, Type
 
 class Job:
     def __init__( self, job_id : int, job_priority : int, runtime : float, 
-                    release_time : float, error_func : Callable[ [ Type[ "Job" ] ], bool ],
-                    error_loc_func : Callable[ [ Type[ "Job" ] ], bool ], 
-                    comparison_func : Callable[ [ Type[ "Job" ], Type[ "Job" ] ], int ] ):
+                    release_time : float, error_func,
+                    error_loc_func, 
+                    comparison_func ):
         
         ################################################
         # The following are meta in formation about jobs 
@@ -74,6 +74,7 @@ class Job:
     def get_first_schedule_time( self : type[ "Job" ] ):
         return self._first_schedule_time
     
+    # This function returns the priority of the job
     def get_priority(self):
         return self._job_priority
 
@@ -103,12 +104,15 @@ class Job:
     def get_orig_runtime( self : type[ "Job" ] ):
         return self._orig_runtime
     
+    # This function returns the jobs waiting time
     def get_waiting_time(self):
         return self._waiting_time
     
+    # This function sets the jobs completion time
     def set_completion_time( self, completion_time ):
         self._completion_time = completion_time
         
+    # This function returns the jobs completion time
     def get_completion_time( self ):
         return self._completion_time
 
@@ -191,22 +195,27 @@ class Job:
     def get_last_checkpoint_time( self ):
         return self._last_checkpoint_time
     
-    # D
+    # Overload the equality behavior
     def __eq__( self, other ):
         return self._comparison_func( self, other ) == 0
 
+    # Overload the less than behavior
     def __lt__( self, other ):
         return self._comparison_func( self, other ) < 0
     
+    # Overload the greater than behavior
     def __gt__( self, other ):
         return not ( self < other ) and not ( self == other )
     
+    # Overload the greater than or equal to behavior
     def __ge__( self, other ):
         return self > other or self == other
     
+    # Overload the less than or equal to behavior
     def __le__( self, other ):
         return self < other or self == 0
     
+    # Overload the not equal to behavior
     def __ne__( self, other ):
         return not ( self == other )
     
