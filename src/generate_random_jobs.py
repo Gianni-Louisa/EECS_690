@@ -2,6 +2,7 @@ import random
 
 import novelalgo
 import LPTorg
+import randomafscheduler
 from modules.job import Job
 
 error_placement_function = lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z )
@@ -14,6 +15,7 @@ def job_info_to_lambda(quad):
 # Define parameters for each algorithm
 LPTLambdaParams = [LPTorg.job_error_func, LPTorg.job_comparison_func]
 NovelLambdaParams = [novelalgo.job_error_func, novelalgo.job_comparison_func]
+RandomAlgoParams = [randomafscheduler.job_error_func, randomafscheduler.job_comparison_func]
 
 # Currently I have it setup to randomly generate jobs, half at time 0 and the rest at random times
 def generate_random_jobs(num_jobs, max_priority, max_runtime, max_release_time):

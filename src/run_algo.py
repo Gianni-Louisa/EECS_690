@@ -12,7 +12,8 @@ from modules.machine import Machine
 
 import novelalgo
 import LPTorg
-from generate_random_jobs import generate_random_jobs, LPTLambdaParams, NovelLambdaParams
+import randomafscheduler
+from generate_random_jobs import generate_random_jobs, LPTLambdaParams, NovelLambdaParams, RandomAlgoParams
 
 # Hightest Priority
 HIGHEST_PRIORITY = 10
@@ -31,6 +32,13 @@ lpt_machine_params = [LPTorg.machine_progression_func,
                       LPTorg.reschedule_func,
                       LPTorg.curr_timestamp_func,
                       LPTorg.PERIOD]
+random_machine_params = [randomafscheduler.machine_progression_func,
+                      randomafscheduler.machine_checkpointing_func,
+                      randomafscheduler.new_job_func,
+                      randomafscheduler.reschedule_func,
+                      randomafscheduler.curr_timestamp_func,
+                      randomafscheduler.PERIOD]
+
 
 # Print a list of jobs
 def print_jobs(list_jobs):
@@ -113,6 +121,9 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing
     elif (algorithm == 'lptalgo'):
         scheduler = GlobalScheduler(num_machines,
                                     *lpt_machine_params)
+    elif (algorithm == 'randomalgo' ):
+        scheduler = GlobalScheduler(num_machines,
+                                    *random_machine_params)
     else:
         raise ValueError('Algorithm Not Found')
 
@@ -228,7 +239,8 @@ def run_set_of_jobs(algorithm_list, job_list_list, func_arg_list, num_machines, 
     if not suppress_graphing:
         plots = []
         algorithm_title_dictionary = { 'novelalgo' : 'Novel Algorithm',
-                                       'lptalgo' : 'LIST Algorithm' }
+                                       'lptalgo' : 'LIST Algorithm',
+                                       'randomalgo' : 'Random Algorithm' }
         algorithm_titles = [algorithm_title_dictionary[algo] for algo in algorithm_list]
 
         plots += graph_averages(algorithm_titles, complete_stat_list)
@@ -278,4 +290,4 @@ if __name__ == '__main__':
     #run_set_of_jobs(['novelalgo', 'lptalgo'], [ jobs for _ in range( 1000 ) ], [NovelLambdaParams, LPTLambdaParams], 3)
 
     jobs = [generate_random_jobs(100, HIGHEST_PRIORITY, 10, 100) for _ in range(1000)]
-    run_set_of_jobs(['novelalgo', 'lptalgo'], jobs, [NovelLambdaParams, LPTLambdaParams], 4)
+    run_set_of_jobs(['novelalgo', 'lptalgo'], jobs, [NovelLambdaParams, LPTLambdaParams], 4, False)
