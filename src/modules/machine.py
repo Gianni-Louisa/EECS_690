@@ -103,7 +103,7 @@ class Machine:
     # requires that there is no job currently scheduled
     # on the machine and the machine's lock_time is 0
     def is_machine_free( self ): 
-        return self._curr_job is None and self._lock_time == 0
+        return self._curr_job is None and self._lock_time < 0.000001
 
     # This function sets the current job on the machine
     def set_curr_job( self, new_job : Job ) -> None:
