@@ -1,5 +1,7 @@
 import random
 from copy import deepcopy
+import statistics
+
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 #matplotlib.use('TkAgg')
@@ -210,11 +212,16 @@ def run_set_of_jobs(algorithm_list, job_list_list, func_arg_list, num_machines, 
         complete_stat_list.append(stats)
         stat_every_run.append(total_stats)
 
+        variance_list = list(map(statistics.variance, [total_stats[i] for i in range(len(stats))]))
+
         # Print Results
         print(f'{algorithm}:')
         print(f'Average Time / Area: {stats[0]}')
+        print(f'\tVariance: {variance_list[0]}')
         print(f'Average Weighted Stretch: {stats[1]}')
+        print(f'\tVariance: {variance_list[1]}')
         print(f'Average Average Wait Time: {stats[2]}')
+        print(f'\tVariance: {variance_list[2]}')
         print()
 
     # Make graph
@@ -229,7 +236,7 @@ def run_set_of_jobs(algorithm_list, job_list_list, func_arg_list, num_machines, 
  
 
         # Show graph or save to pdf
-        show = False # Change if you want a pdf
+        show = True # Change if you want a pdf
         if show:
             plt.show()
         else:
@@ -271,4 +278,4 @@ if __name__ == '__main__':
     #run_set_of_jobs(['novelalgo', 'lptalgo'], [ jobs for _ in range( 1000 ) ], [NovelLambdaParams, LPTLambdaParams], 3)
 
     jobs = [generate_random_jobs(100, HIGHEST_PRIORITY, 10, 100) for _ in range(1000)]
-    run_set_of_jobs(['novelalgo', 'lptalgo'], jobs, [NovelLambdaParams, LPTLambdaParams], 4, False)
+    run_set_of_jobs(['novelalgo', 'lptalgo'], jobs, [NovelLambdaParams, LPTLambdaParams], 4)
