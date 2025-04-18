@@ -1,7 +1,7 @@
 import random
 from copy import deepcopy
 import matplotlib.pyplot as plt
-import matplotlib
+from matplotlib.backends.backend_pdf import PdfPages
 #matplotlib.use('TkAgg')
 
 from modules.job import Job
@@ -49,39 +49,51 @@ def print_jobs(list_jobs):
 # Make bar graph of different average statistics to compare algorithms
 def graph_averages(algorithm_list, stat_list):
     stat_lable_list = ['Average Total Runtime over Area', 'Average Weighted Stretch', 'Average Wait Time']
+    plots = []
 
     # Make a bar graph for each stat in the stat list
     for i, stat_label in enumerate(stat_lable_list):
         stat = [stat[i] for stat in stat_list]
 
-        plt.figure()
+        fig = plt.figure()
         plt.bar(algorithm_list, stat)
         plt.title('Comparison of ' + stat_label)
         plt.xlabel('Algorithm')
         plt.ylabel(stat_label)
 
-    #plt.show()
+        plots.append(fig)
+
+    return plots
 
     
 # Make overlapping normal distributions for statistics
 def graph_distributions(algorithm_list, complete_stat_lists, n_trials):
     stat_label_list = ['Average Total Runtime over Area', 'Average Weighted Stretch', 'Average Wait Time']
+    plots = []
 
     # Make a histogram for each stat
     for i, stat_label in enumerate(stat_label_list):
-        plt.figure()
+        fig = plt.figure()
+        stat_list = []
         
         for j, algo in enumerate(algorithm_list):
-            stat_list = [stat_list[i] for stat_list in complete_stat_lists[j]]
+            stat_list.append([stat_list[i] for stat_list in complete_stat_lists[j]])
 
-            if stat_label == 'Average Total Runtime over Area':
-                plt.hist(stat_list, 4, label=algo)
-            else:
-                plt.hist(stat_list, 10, label=algo)
-
+        if stat_label == 'Average Total Runtime over Area':
+            plt.hist(stat_list, 10, label=algorithm_list)
+        elif stat_label == 'Average Weighted Stretch':
+            plt.hist(stat_list, 15, label=algorithm_list)
+        else:
+            plt.hist(stat_list, 10, label=algorithm_list)
+            
         plt.title('Comparison of ' + str(n_trials) + ' of ' + stat_label)
         plt.xlabel(stat_label)
         plt.ylabel('Number of Occurrences')
+        plt.legend()
+
+        plots.append(fig)
+
+    return plots
                          
 
 # Run a set of jobs once and returns various statistics
@@ -207,10 +219,26 @@ def run_set_of_jobs(algorithm_list, job_list_list, func_arg_list, num_machines, 
 
     # Make graph
     if not suppress_graphing:
-        graph_averages(['Novel Algorithm'], complete_stat_list)
-        graph_distributions(['Novel Algorithm'], stat_every_run, n)
+        plots = []
+        algorithm_title_dictionary = { 'novelalgo' : 'Novel Algorithm',
+                                       'lptalgo' : 'LIST Algorithm' }
+        algorithm_titles = [algorithm_title_dictionary[algo] for algo in algorithm_list]
 
-        plt.show()
+        plots += graph_averages(algorithm_titles, complete_stat_list)
+        plots += graph_distributions(algorithm_titles, stat_every_run, n)
+ 
+
+        # Show graph or save to pdf
+        show = False # Change if you want a pdf
+        if show:
+            plt.show()
+        else:
+            pp = PdfPages('graphs.pdf')
+
+            for plot in plots:
+                pp.savefig(plot)
+
+            pp.close()
 
     
 if __name__ == '__main__':
@@ -243,4 +271,4 @@ if __name__ == '__main__':
     #run_set_of_jobs(['novelalgo', 'lptalgo'], [ jobs for _ in range( 1000 ) ], [NovelLambdaParams, LPTLambdaParams], 3)
 
     jobs = [generate_random_jobs(100, HIGHEST_PRIORITY, 10, 100) for _ in range(1000)]
-    run_set_of_jobs(['novelalgo', 'lptalgo'], jobs, [NovelLambdaParams, LPTLambdaParams], 4)
+    run_set_of_jobs(['novelalgo', 'lptalgo'], jobs, [NovelLambdaParams, LPTLambdaParams], 4, False)
