@@ -10,6 +10,7 @@ from modules.machine import Machine
 
 import novelalgo
 import LPTorg
+from generate_random_jobs import generate_random_jobs, LPTLambdaParams, NovelLambdaParams
 
 # Hightest Priority
 HIGHEST_PRIORITY = 10
@@ -28,8 +29,6 @@ lpt_machine_params = [LPTorg.machine_progression_func,
                       LPTorg.reschedule_func,
                       LPTorg.curr_timestamp_func,
                       LPTorg.PERIOD]
-
-
 
 # Print a list of jobs
 def print_jobs(list_jobs):
@@ -177,8 +176,8 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing
 
 
 # Run job scheduler each time on a list of job dicts and print and graph statistics
-def run_set_of_jobs(algorithm_list, job_list_lambdas, func_arg_list, num_machines, suppress_graphing=True):
-    n = len(job_list_lambdas)
+def run_set_of_jobs(algorithm_list, job_list_list, func_arg_list, num_machines, suppress_graphing=True):
+    n = len(job_list_list)
     stat_dict = { }
     complete_stat_list = []
     stat_every_run = []
@@ -188,9 +187,8 @@ def run_set_of_jobs(algorithm_list, job_list_lambdas, func_arg_list, num_machine
         stats = (0, 0, 0)
         total_stats = []
         
-        for job_list_lambda in job_list_lambdas:
-            job_list = job_list_lambda(*func_arg_list[i])
-            #job_list_copy = { i : [ deepcopy( j ) for j in jl ] for i, jl in job_list.items()  }
+        for job_list in job_list_list:
+            job_list = { release_time : [job_lambda(*func_arg_list[i]) for job_lambda in job_lambda_list] for release_time, job_lambda_list in job_list.items() }
             sing_stats = run_single_set_of_jobs(algorithm, job_list, num_machines, True)
 
             stats = tuple(x + y for x, y in zip(sing_stats, stats))
@@ -216,32 +214,9 @@ def run_set_of_jobs(algorithm_list, job_list_lambdas, func_arg_list, num_machine
 
     
 if __name__ == '__main__':
-    
-        # Define parameters for each algorithm
-    LPTLambdaParams = [LPTorg.job_error_func, LPTorg.job_comparison_func]
-    NovelLambdaParams = [novelalgo.job_error_func, novelalgo.job_comparison_func]
-    
-    # ------------------------------ Random Job Testing ------------------------------
-    def THE_Job_Generator(error_func, job_compare_func):
-        return novelalgo.generate_random_jobs(
-            num_jobs=2000,          
-            max_priority=10,      
-            max_runtime=20,    
-            max_release_time=10
-        )
-    
-    
-    # Run the algorithms with the same set of randomly generated jobs
-    
-    # run_set_of_jobs(
-    #     ['novelalgo', 'lptalgo'], 
-    #     [THE_Job_Generator for _ in range(10)], 
-    #     [NovelLambdaParams, LPTLambdaParams], 
-    #     4, 
-    #     suppress_graphing=False  
-    # )
 
-    
+    '''
+    Delete later before pushing to production
     # ------------------------------ TEST JOBS ------------------------------
     jobs = lambda error_func, job_compare_func : { 0 : [
         Job(0, 1, 10, 0, error_func, lambda x, y, z : z, job_compare_func), 
@@ -261,9 +236,11 @@ if __name__ == '__main__':
         Job(6, 7, 2, 0, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
         Job(7, 8, 2, 0, error_func, lambda x, y, z : z if z < 0.000001 else random.uniform( 0, z ), job_compare_func),
     ] }
+    '''
 
 
     #run_single_set_of_jobs('lptalgo', jobs(*LPTLambdaParams), 3)
-    run_set_of_jobs(['novelalgo', 'lptalgo'], [ jobs for _ in range( 1000 ) ], [NovelLambdaParams, LPTLambdaParams], 3)
+    #run_set_of_jobs(['novelalgo', 'lptalgo'], [ jobs for _ in range( 1000 ) ], [NovelLambdaParams, LPTLambdaParams], 3)
 
-   
+    jobs = [generate_random_jobs(100, HIGHEST_PRIORITY, 10, 100) for _ in range(1000)]
+    run_set_of_jobs(['novelalgo', 'lptalgo'], jobs, [NovelLambdaParams, LPTLambdaParams], 4)
