@@ -6,7 +6,7 @@ Average Weighted Stretch: 129.23065570010604
 Average Average Wait Time: 109.63293963712438
 	Variance: 7469.761665004506
 
-lptalgo:
+listalgo:
 Average Time / Area: 1.902187655069909
 	Variance: 5847.156959572601
 Average Weighted Stretch: 179.33973053238918

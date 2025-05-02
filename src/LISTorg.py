@@ -40,7 +40,7 @@ def job_error_func( job : Job, current_timestamp ):
     
 def job_comparison_func( job1 : Job, job2 : Job ):
     #This function compares the jobs to sort them within the global scheduler.
-    #LPT sorts by longest processing time first, has no priority system.
+    #LIST sorts by longest processing time first, has no priority system.
     if job1._runtime == job2._runtime: #first check if they have the same runtime.
         #if they have the same runtime, then just sort by release time to get the earlier job higher priority.
         if job1._release_time == job2._release_time:

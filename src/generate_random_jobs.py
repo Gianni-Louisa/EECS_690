@@ -1,7 +1,7 @@
 import random
 
 import novelalgo
-import LPTorg
+import LISTorg
 import randomafscheduler
 from modules.job import Job
 
@@ -13,7 +13,7 @@ def job_info_to_lambda(quad):
 
 
 # Define parameters for each algorithm
-LPTLambdaParams = [LPTorg.job_error_func, LPTorg.job_comparison_func]
+LISTLambdaParams = [LISTorg.job_error_func, LISTorg.job_comparison_func]
 NovelLambdaParams = [novelalgo.job_error_func, novelalgo.job_comparison_func]
 RandomAlgoParams = [randomafscheduler.job_error_func, randomafscheduler.job_comparison_func]
 
