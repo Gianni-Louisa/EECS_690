@@ -202,7 +202,7 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing
 
 
 # Run job scheduler each time on a list of job dicts and print and graph statistics
-def run_set_of_jobs(algorithm_list, job_list_list, func_arg_list, num_machines, suppress_graphing=True):
+def run_set_of_jobs(algorithm_list, job_list_list, func_arg_list, num_machines, suppress_graphing=True, suppress_printing=False):
     n = len(job_list_list)
     stat_dict = { }
     complete_stat_list = []
@@ -227,14 +227,15 @@ def run_set_of_jobs(algorithm_list, job_list_list, func_arg_list, num_machines, 
         variance_list = list(map(statistics.variance, [total_stats[i] for i in range(len(stats))]))
 
         # Print Results
-        print(f'{algorithm}:')
-        print(f'Average Time / Area: {stats[0]}')
-        print(f'\tVariance: {variance_list[0]}')
-        print(f'Average Weighted Stretch: {stats[1]}')
-        print(f'\tVariance: {variance_list[1]}')
-        print(f'Average Average Wait Time: {stats[2]}')
-        print(f'\tVariance: {variance_list[2]}')
-        print()
+        if not suppress_printing:
+            print(f'{algorithm}:')
+            print(f'Average Time / Area: {stats[0]}')
+            print(f'\tVariance: {variance_list[0]}')
+            print(f'Average Weighted Stretch: {stats[1]}')
+            print(f'\tVariance: {variance_list[1]}')
+            print(f'Average Average Wait Time: {stats[2]}')
+            print(f'\tVariance: {variance_list[2]}')
+            print()
 
     # Make graph
     if not suppress_graphing:
