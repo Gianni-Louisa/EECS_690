@@ -40,7 +40,7 @@ E_prime_equ = E_prime_equ.subs([(m, 4)])
 #pprint(E_prime_equ, use_unicode=IS_USE_UNICODE)
 
 # Run set of test jobs
-jobs = [generate_random_jobs(100, run_algo.HIGHEST_PRIORITY, 10, 50) for _ in range(100)]
+jobs = [generate_random_jobs(100, run_algo.HIGHEST_PRIORITY, 25, 50) for _ in range(100)]
 run_algo.run_set_of_jobs(['novelalgo'], jobs, [run_algo.NovelLambdaParams], 4, suppress_printing=True)
 
 # Substitue P into equation

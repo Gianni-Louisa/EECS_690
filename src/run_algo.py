@@ -295,5 +295,5 @@ if __name__ == '__main__':
     #run_single_set_of_jobs('lptalgo', jobs(*LPTLambdaParams), 3)
     #run_set_of_jobs(['novelalgo', 'lptalgo'], [ jobs for _ in range( 1000 ) ], [NovelLambdaParams, LPTLambdaParams], 3)
 
-    jobs = [generate_random_jobs(100, HIGHEST_PRIORITY, 10, 50) for _ in range(100)]
-    run_set_of_jobs(['novelalgo', 'lptalgo', 'randomalgo'], jobs, [NovelLambdaParams, LPTLambdaParams, RandomAlgoParams], 4, False)
+    jobs = [generate_random_jobs(100, HIGHEST_PRIORITY, 25, 50) for _ in range(100)]
+    run_set_of_jobs(['novelalgo', 'lptalgo'], jobs, [NovelLambdaParams, LPTLambdaParams], 4, False)

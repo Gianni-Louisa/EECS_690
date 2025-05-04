@@ -258,7 +258,7 @@ def reschedule_func( scheduler : GlobalScheduler ):
             kill_cost = new_job.get_orig_runtime() - new_job.get_runtime()
 
             # Compute the cost to checkpoint
-            checkpoint_cost = kill_cost - new_job.get_last_checkpoint_time() + ( MIGRATION_OVERHEAD * ( len( scheduler.machines ) - 1 ) / len( scheduler.machines ) )
+            checkpoint_cost = scheduler._current_timestamp - new_job.get_last_checkpoint_time() + ( MIGRATION_OVERHEAD * ( len( scheduler.machines ) - 1 ) / len( scheduler.machines ) )
 
             global total_preempts
             total_preempts += 1
