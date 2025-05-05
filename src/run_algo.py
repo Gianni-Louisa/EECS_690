@@ -1,6 +1,7 @@
 import random
 from copy import deepcopy
 import statistics
+import math
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
@@ -17,6 +18,10 @@ from generate_random_jobs import generate_random_jobs, LPTLambdaParams, NovelLam
 
 # Hightest Priority
 HIGHEST_PRIORITY = 10
+
+# Job stats for sym file
+job_stats_a_to_T = []
+job_stats_with_p = []
 
 # Define a set of parameters for machine based on algorithm
 novelalgo_machine_params = [novelalgo.machine_progression_func,
@@ -182,6 +187,13 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing
         sum_ideal_job_length += orig_runtime
         sum_wait_time += waiting_time
         sum_weighted_stretch += priority * total_runtime / orig_runtime
+
+        global job_stats_a_to_T
+        a = int(math.ceil(orig_runtime / novelalgo.PERIOD))
+        job_stats_a_to_T.append((a, runtime))
+
+        global job_stats_with_p
+        job_stats_with_p.append((a, priority, runtime))
 
         if not suppress_printing:
             print(f'Job ({job_id}) p = {priority}, T = {orig_runtime}, r = {release_time}, w = {waiting_time}, rT = { runtime }, r_T = {total_runtime}, s = {runtime / orig_runtime}')
