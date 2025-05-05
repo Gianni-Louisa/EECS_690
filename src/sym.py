@@ -1,5 +1,7 @@
+import numpy as np
 from sympy import *
 from scipy.optimize import minimize
+import matplotlib.pyplot as plt
 
 import novelalgo
 import run_algo
@@ -111,3 +113,22 @@ for job_stat in job_stats_p:
 
 print(f'Average reg. {sum(reg_list) / len(reg_list)}')
 
+# Graph results
+
+plt.figure()
+
+x = [novelalgo.PERIOD * stat[0] for stat in job_stats]
+y = [stat[1] for stat in job_stats]
+
+x_2 = np.linspace(x[0], x[-1], 1000)
+y_2 = [E_prime_fn(x / novelalgo.PERIOD, best_gamma) for x in x_2]
+
+plt.plot(x_2, y_2, label='Calculated Expected Average Runtime', color='red')
+plt.scatter(x, y, label='Actual Average Runtime')
+
+plt.title('Average Runtime vs Job Length')
+plt.xlabel('Job Length (ticks)')
+plt.ylabel('Actual Runtime (ticks)')
+plt.legend()
+
+plt.show()
