@@ -22,6 +22,10 @@ RECOVERY_OVERHEAD = 0.3
 # should trigger a checkpoint
 PERIOD = ( 2 * MEW * CHECKPOINTING_OVERHEAD ) ** (0.5)
 
+# Used for statistics surrounding killing/checkpoint
+total_preempts = 0
+total_kills = 0
+
 # This function defines the liklehood of an error
 # within the context of the job and the current
 # timestamp
@@ -57,7 +61,7 @@ def job_comparison_func( job1 : Job, job2 : Job ):
                 # both jobs are equal
                 return 0
             
-            elif job1._release_time > job2._release_time:
+            elif job1._release_time < job2._release_time:
                 # Indicate that the job on the left hand side of the
                 # operator is greater than the right hand side if the
                 # release time is greater on the right hand side
@@ -254,10 +258,15 @@ def reschedule_func( scheduler : GlobalScheduler ):
             kill_cost = new_job.get_orig_runtime() - new_job.get_runtime()
 
             # Compute the cost to checkpoint
-            checkpoint_cost = kill_cost - new_job.get_last_checkpoint_time() + ( MIGRATION_OVERHEAD * ( len( scheduler.machines ) - 1 ) / len( scheduler.machines ) )
+            checkpoint_cost = scheduler._current_timestamp - new_job.get_last_checkpoint_time() + ( MIGRATION_OVERHEAD * ( len( scheduler.machines ) - 1 ) / len( scheduler.machines ) )
+
+            global total_preempts
+            total_preempts += 1
 
             # If the cost to kill is less than the cost to checkpoint restart the job
             if( kill_cost <= checkpoint_cost ):
+                global total_kills
+                total_kills += 1
                 new_job.restart_job()
                 new_job.set_last_checkpoint_time( scheduler._current_timestamp )
 

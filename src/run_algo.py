@@ -1,6 +1,7 @@
 import random
 from copy import deepcopy
 import statistics
+import math
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
@@ -17,6 +18,10 @@ from generate_random_jobs import generate_random_jobs, LPTLambdaParams, NovelLam
 
 # Hightest Priority
 HIGHEST_PRIORITY = 10
+
+# Job stats for sym file
+job_stats_a_to_T = []
+job_stats_with_p = []
 
 # Define a set of parameters for machine based on algorithm
 novelalgo_machine_params = [novelalgo.machine_progression_func,
@@ -183,6 +188,13 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing
         sum_wait_time += waiting_time
         sum_weighted_stretch += priority * total_runtime / orig_runtime
 
+        global job_stats_a_to_T
+        a = int(orig_runtime / novelalgo.PERIOD)
+        job_stats_a_to_T.append((a, runtime))
+
+        global job_stats_with_p
+        job_stats_with_p.append((a, priority, runtime))
+
         if not suppress_printing:
             print(f'Job ({job_id}) p = {priority}, T = {orig_runtime}, r = {release_time}, w = {waiting_time}, rT = { runtime }, r_T = {total_runtime}, s = {runtime / orig_runtime}')
 
@@ -202,7 +214,7 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing
 
 
 # Run job scheduler each time on a list of job dicts and print and graph statistics
-def run_set_of_jobs(algorithm_list, job_list_list, func_arg_list, num_machines, suppress_graphing=True):
+def run_set_of_jobs(algorithm_list, job_list_list, func_arg_list, num_machines, suppress_graphing=True, suppress_printing=False):
     n = len(job_list_list)
     stat_dict = { }
     complete_stat_list = []
@@ -227,14 +239,15 @@ def run_set_of_jobs(algorithm_list, job_list_list, func_arg_list, num_machines, 
         variance_list = list(map(statistics.variance, [total_stats[i] for i in range(len(stats))]))
 
         # Print Results
-        print(f'{algorithm}:')
-        print(f'Average Time / Area: {stats[0]}')
-        print(f'\tVariance: {variance_list[0]}')
-        print(f'Average Weighted Stretch: {stats[1]}')
-        print(f'\tVariance: {variance_list[1]}')
-        print(f'Average Average Wait Time: {stats[2]}')
-        print(f'\tVariance: {variance_list[2]}')
-        print()
+        if not suppress_printing:
+            print(f'{algorithm}:')
+            print(f'Average Time / Area: {stats[0]}')
+            print(f'\tVariance: {variance_list[0]}')
+            print(f'Average Weighted Stretch: {stats[1]}')
+            print(f'\tVariance: {variance_list[1]}')
+            print(f'Average Average Wait Time: {stats[2]}')
+            print(f'\tVariance: {variance_list[2]}')
+            print()
 
     # Make graph
     if not suppress_graphing:
@@ -294,5 +307,5 @@ if __name__ == '__main__':
     #run_single_set_of_jobs('lptalgo', jobs(*LPTLambdaParams), 3)
     #run_set_of_jobs(['novelalgo', 'lptalgo'], [ jobs for _ in range( 1000 ) ], [NovelLambdaParams, LPTLambdaParams], 3)
 
-    jobs = [generate_random_jobs(100, HIGHEST_PRIORITY, 10, 50) for _ in range(100)]
-    run_set_of_jobs(['novelalgo', 'lptalgo', 'randomalgo'], jobs, [NovelLambdaParams, LPTLambdaParams, RandomAlgoParams], 4, False)
+    jobs = [generate_random_jobs(100, HIGHEST_PRIORITY, 25, 50) for _ in range(100)]
+    run_set_of_jobs(['novelalgo', 'lptalgo'], jobs, [NovelLambdaParams, LPTLambdaParams], 4, False)
