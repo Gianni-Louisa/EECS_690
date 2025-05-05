@@ -189,7 +189,7 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing
         sum_weighted_stretch += priority * total_runtime / orig_runtime
 
         global job_stats_a_to_T
-        a = int(math.ceil(orig_runtime / novelalgo.PERIOD))
+        a = int(orig_runtime / novelalgo.PERIOD)
         job_stats_a_to_T.append((a, runtime))
 
         global job_stats_with_p

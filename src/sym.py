@@ -127,8 +127,10 @@ print(f'Average reg. {sum(reg_list) / len(reg_list)}')
 gamma_best_fit = linregress(p_list, best_gamma_list)
 slope = gamma_best_fit.slope
 intercept = gamma_best_fit.intercept
+r_2 = gamma_best_fit.rvalue ** 2
 
-print(f'Gamma line of best fit: {slope} * x + {intercept}\n')
+print(f'Gamma line of best fit: {slope} * x + {intercept}')
+print(f'R^2: {r_2}\n')
 
 # Get new E_prime function based on p
 new_E_prime_fn = (lambda a, p : E_prime_fn(a, slope * p + intercept))

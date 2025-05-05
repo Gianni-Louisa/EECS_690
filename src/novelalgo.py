@@ -61,7 +61,7 @@ def job_comparison_func( job1 : Job, job2 : Job ):
                 # both jobs are equal
                 return 0
             
-            elif job1._release_time > job2._release_time:
+            elif job1._release_time < job2._release_time:
                 # Indicate that the job on the left hand side of the
                 # operator is greater than the right hand side if the
                 # release time is greater on the right hand side
