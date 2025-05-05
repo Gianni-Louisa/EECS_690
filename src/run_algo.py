@@ -12,9 +12,9 @@ from modules.globalscheduler import GlobalScheduler
 from modules.machine import Machine
 
 import novelalgo
-import LPTorg
+import LISTorg
 import randomafscheduler
-from generate_random_jobs import generate_random_jobs, LPTLambdaParams, NovelLambdaParams, RandomAlgoParams
+from generate_random_jobs import generate_random_jobs, LISTLambdaParams, NovelLambdaParams, RandomAlgoParams
 
 # Hightest Priority
 HIGHEST_PRIORITY = 10
@@ -31,12 +31,12 @@ novelalgo_machine_params = [novelalgo.machine_progression_func,
                             novelalgo.curr_timestamp_func,
                             novelalgo.PERIOD]
 
-lpt_machine_params = [LPTorg.machine_progression_func,
-                      LPTorg.machine_checkpointing_func,
-                      LPTorg.new_job_func,
-                      LPTorg.reschedule_func,
-                      LPTorg.curr_timestamp_func,
-                      LPTorg.PERIOD]
+list_machine_params = [LISTorg.machine_progression_func,
+                      LISTorg.machine_checkpointing_func,
+                      LISTorg.new_job_func,
+                      LISTorg.reschedule_func,
+                      LISTorg.curr_timestamp_func,
+                      LISTorg.PERIOD]
 
 random_machine_params = [randomafscheduler.machine_progression_func,
                       randomafscheduler.machine_checkpointing_func,
@@ -124,9 +124,9 @@ def run_single_set_of_jobs(algorithm, dict_jobs, num_machines, suppress_printing
         scheduler = GlobalScheduler(num_machines,
                                     *novelalgo_machine_params)
         
-    elif (algorithm == 'lptalgo'):
+    elif (algorithm == 'listalgo'):
         scheduler = GlobalScheduler(num_machines,
-                                    *lpt_machine_params)
+                                    *list_machine_params)
     elif (algorithm == 'randomalgo' ):
         scheduler = GlobalScheduler(num_machines,
                                     *random_machine_params)
@@ -253,7 +253,7 @@ def run_set_of_jobs(algorithm_list, job_list_list, func_arg_list, num_machines, 
     if not suppress_graphing:
         plots = []
         algorithm_title_dictionary = { 'novelalgo' : 'Novel Algorithm',
-                                       'lptalgo' : 'LIST Algorithm',
+                                       'listalgo' : 'LIST Algorithm',
                                        'randomalgo' : 'Random Algorithm' }
         algorithm_titles = [algorithm_title_dictionary[algo] for algo in algorithm_list]
 
@@ -304,8 +304,9 @@ if __name__ == '__main__':
     '''
 
 
-    #run_single_set_of_jobs('lptalgo', jobs(*LPTLambdaParams), 3)
-    #run_set_of_jobs(['novelalgo', 'lptalgo'], [ jobs for _ in range( 1000 ) ], [NovelLambdaParams, LPTLambdaParams], 3)
+    #run_single_set_of_jobs('listalgo', jobs(*LISTLambdaParams), 3)
+    #run_set_of_jobs(['novelalgo', 'listalgo'], [ jobs for _ in range( 1000 ) ], [NovelLambdaParams, LISTLambdaParams], 3)
 
     jobs = [generate_random_jobs(100, HIGHEST_PRIORITY, 25, 50) for _ in range(100)]
     run_set_of_jobs(['novelalgo', 'lptalgo'], jobs, [NovelLambdaParams, LPTLambdaParams], 4, False)
+
